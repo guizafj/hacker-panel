@@ -212,3 +212,6 @@ instance/
 # Temporary files
 *.swp
 *.tmp
+
+# bloquear subida de migraciones
+migrations/
