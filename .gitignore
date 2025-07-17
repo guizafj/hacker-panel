@@ -218,3 +218,6 @@ migrations/
 
 # Evitar la subida de node_modules
 node_modules/
+
+# limitar la subida de archivos .pem
+.pem

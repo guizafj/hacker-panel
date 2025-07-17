@@ -5,7 +5,7 @@ from whoosh.fields import Schema, TEXT, ID
 from whoosh.qparser import QueryParser
 from whoosh.analysis import StemmingAnalyzer
 from src.models.scripts import Scripts
-from models.write_ups import WriteUps
+from src.models.write_ups import WriteUps
 from src.models.theory import Theory
 import spacy
 import asyncio

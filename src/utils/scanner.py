@@ -1,7 +1,7 @@
 import os
 from extensions import db
 from src.models.theory import Theory
-from models.write_ups import WriteUps
+from src.models.write_ups import WriteUps
 from src.models.scripts import Scripts
 from src.utils.search_utils import populate_whoosh_index  # Importar la función de indexación
 import asyncio
