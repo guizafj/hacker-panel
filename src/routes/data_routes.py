@@ -2,7 +2,7 @@ import os
 import json
 from flask import Blueprint, render_template, request, url_for, send_from_directory
 from src.models.scripts import Scripts
-from models.write_ups import WriteUps
+from src.models.write_ups import WriteUps
 from src.models.theory import Theory
 from src.utils.search_utils import search_whoosh
 import asyncio
@@ -119,7 +119,7 @@ def view_theory(theory_id):
         print(content_md)  # Agrega esta línea
         # se pasa la categoria al render
         renderer = MyRenderer(theory)
-        markdown = mistune.Markdown(renderer=renderer)
+        markdown = mistune.Markdown(content_md)
         content_html = markdown(content_md)
         return render_template('theory_detail.html', title=theory.title, content=content_html)
     except FileNotFoundError:
