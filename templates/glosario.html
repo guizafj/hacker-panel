@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Glosario - Lista de terminos{% endblock %}
+
+{% block content %}
+
+{% if glosario %}
+<div class="container mx-auto mt-8">
+    <h1 class="text-2x1 font-bold mb-4">Glosario</h1>
+    <!-- Mostrar términos del glosario -->
+    <ul class= "space-y-4">
+        {% for term in glosario["Glosario"] %}
+        <li class= "bg-white shadow-md rounded-lg p-4">
+            <strong class="text-lg font-semibold">{{ term["Termino"] }}</strong> - {{ term["traduccion"] }}<br>
+            <em class="text-gray-600">{{ term["Contexto"] }}</em>
+        </li>
+{% endfor %}
+    </ul>
+{% else %}
+    <p>No hay datos disponibles en el glosario.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+
+    <!-- FullCalendar JS (solo CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/list@6.1.8/index.global.min.js"></script>
+    
+
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    {% block extra_css %}{% endblock %}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-gray-800 align-baseline text-center">
+        <div class="container mx-auto flex justify-between items-center px-4 py-2">
+            <div class="text-white font-bold text-lg">
+                <a  href="{{ url_for('generales.index') }}">Hacker Panel</a>
+            </div>
+            <div class="flex space-x-4">
+                    <a href="{{ url_for('task.add_task') }}" class="text-gray-300 hover:text-white">Añadir Tarea</a>
+                    <a href= "{{ url_for('data.glosario') }}" class="text-gray-300 hover:text-white">Glosario</a>
+                    <a href= "{{ url_for('data.checklist') }}" class="text-gray-300 hover:text-white">Checklist</a>
+                    <a href= "{{ url_for('data.list_writeups') }}" class="text-gray-300 hover:text-white">Write Ups</a>
+                    <a href= "{{ url_for('data.list_scripts') }}" class="text-gray-300 hover:text-white">Scripts</a>
+                    <a href= "{{ url_for('data.list_data') }}" class="text-gray-300 hover:text-white">Apuntes</a>
+            </div>
+            <!-- Barra de búsqueda -->
+            <form action="{{ url_for('data.search') }}" method="GET" class="flex items-center">
+                <input type="text" name="q" placeholder="Buscar..." class="bg-gray-700 text-white rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded-md">Buscar</button>
+            </form>
+        </div>
+    </nav>
+    
+<div class="container">
+    <div class="col-auto"
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    </div>
+</div>
+    <main class="container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+    
+    {% block scripts %}
+<script src="{{ url_for('static', filename='js/script-calendar.js') }}"></script>
+{% endblock %}
+</body>
+</html>
