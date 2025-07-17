@@ -215,3 +215,6 @@ instance/
 
 # bloquear subida de migraciones
 migrations/
+
+# Evitar la subida de node_modules
+node_modules/

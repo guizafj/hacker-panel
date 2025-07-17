@@ -102,7 +102,7 @@ Imagina que eres un estudiante de ciberseguridad que está aprendiendo sobre red
 1.  Clona el repositorio:
 
     ```bash
-    git clone <URL del repositorio>
+    git clone <https://github.com/guizafj/hacker-panel.git>
     cd hacker-panel
     ```
 
