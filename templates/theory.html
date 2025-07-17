@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Teoría{% endblock %}
+
+{% block content %}
+
+<div class="container mx-auto mt-8">
+    <h1 class="text-2xl font-bold mb-4">Teoría</h1>
+
+    {% if categories %}
+        {% for category, files in categories.items() %}
+            <section class="mb-8">
+                <h2 class="text-xl font-semibold mb-2">{{ category }}</h2>
+                <ul class="list-disc pl-5">
+                    {% for file in files %}
+                        <li class="bg-white shadow-md rounded-lg p-4 mb-2">
+                            <a href="{{ url_for('data.view_theory', theory_id=file.id) }}" class="text-blue-600 hover:underline">{{ file.title }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endfor %}
+    {% else %}
+        <p>No hay datos disponibles en el theory.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

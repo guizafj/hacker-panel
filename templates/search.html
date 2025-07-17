@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %} Resultado de busqueda {% endblock %}
+
+{% block content %}
+
+<h1>Search Results</h1>
+<form action="{{ url_for('data.search') }}" method="GET">
+    <input type="text" name="q" value="{{ query }}">
+    <button type="submit">Buscar</button>
+</form>
+
+{% if results %}
+    <ul>
+        {% for result in results %}
+            <li>
+                <strong>{{ result.title }}</strong> ({{ result.model_type }}) - Category: {{ result.category }}
+                <a href="
+                    {% if result.model_type == 'script' %}
+                        {{ url_for('data.view_script', script_id=result.object.id) }}
+                    {% elif result.model_type == 'writeup' %}
+                        {{ url_for('data.view_writeup', writeup_id=result.object.id) }}
+                    {% elif result.model_type == 'theory' %}
+                        {{ url_for('data.view_theory', theory_id=result.object.id) }}
+                    {% elif result.model_type == 'glosario' %}
+                        {{ url_for('data.glosario') }}
+                    {% elif result.model_type == 'checklist' %}
+                        {{ url_for('data.checklist') }}
+                    {% else %}
+                        #  URL no definida
+                    {% endif %}
+                ">View</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No results found for "{{ query }}"</p>
+{% endif %}
+
+{% endblock %}

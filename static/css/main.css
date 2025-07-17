@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos personalizados para el calendario */
+.fc {
+    @apply font-sans;
+}
+
+.fc-toolbar-title {
+    @apply text-xl font-bold !important;
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: #007bff;
+}
+
+.fc-button {
+    @apply bg-blue-500 hover:bg-blue-700 !important;
+    background-color: #007bff !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 5px 10px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+}
+
+.fc-button:hover {
+    @apply bg-blue-700;
+    background-color: #0056b3 !important;
+}
+
+.fc-day-today {
+    @apply bg-blue-50 !important;
+    background-color: #e3f2fd !important;
+}
+
+.fc-event {
+    @apply cursor-pointer !important;
+}
+
+.fc-toolbar {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.fc-daygrid-event {
+    background-color: #28a745 !important;
+    color: #fff !important;
+}
+
+.fc-event-main-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Alinea los elementos a la izquierda */
+    width: 100%; /* Asegura que el contenedor ocupe todo el ancho */
+}
+
+.fc-event-title {
+    font-weight: bold;
+}
+
+.fc-event-time {
+    font-size: 0.8em;
+    color: #666;
+}
+
+.fc-timegrid-event {
+    width: 100%; /* Ocupa todo el ancho en la vista de día/semana */
+}
+
