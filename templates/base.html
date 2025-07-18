@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="{% if dark_mode %}dark{% endif %}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,25 +16,30 @@
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/list@6.1.8/index.global.min.js"></script>
     
 
+    <!-- FullCalendar CSS -->
+    {% if 'calendar' in extra_css %}
+    <link href="{{ url_for('static', filename='css/calendar.css') }}" rel="stylesheet">
+    {% endif %}
+
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
     {% block extra_css %}{% endblock %}
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 dark:bg-gray-900">
     <nav class="bg-gray-800 align-baseline text-center">
         <div class="container mx-auto flex justify-between items-center px-4 py-2">
             <div class="text-white font-bold text-lg">
-                <a  href="{{ url_for('generales.index') }}">Hacker Panel</a>
+                <a href="{{ url_for('generales.index') }}">Hacker Panel</a>
             </div>
             <div class="flex space-x-4">
-                    <a href="{{ url_for('task.add_task') }}" class="text-gray-300 hover:text-white">Añadir Tarea</a>
-                    <a href= "{{ url_for('data.glosario') }}" class="text-gray-300 hover:text-white">Glosario</a>
-                    <a href= "{{ url_for('data.checklist') }}" class="text-gray-300 hover:text-white">Checklist</a>
-                    <a href= "{{ url_for('data.list_writeups') }}" class="text-gray-300 hover:text-white">Write Ups</a>
-                    <a href= "{{ url_for('data.list_scripts') }}" class="text-gray-300 hover:text-white">Scripts</a>
-                    <a href= "{{ url_for('data.list_data') }}" class="text-gray-300 hover:text-white">Apuntes</a>
+                <a href="{{ url_for('task.add_task') }}" class="text-gray-300 hover:text-white">Añadir Tarea</a>
+                <a href="{{ url_for('data.glosario') }}" class="text-gray-300 hover:text-white">Glosario</a>
+                <a href="{{ url_for('data.checklist') }}" class="text-gray-300 hover:text-white">Checklist</a>
+                <a href="{{ url_for('data.list_writeups') }}" class="text-gray-300 hover:text-white">Write Ups</a>
+                <a href="{{ url_for('data.list_scripts') }}" class="text-gray-300 hover:text-white">Scripts</a>
+                <a href="{{ url_for('data.list_data') }}" class="text-gray-300 hover:text-white">Apuntes</a>
             </div>
             <!-- Barra de búsqueda -->
             <form action="{{ url_for('data.search') }}" method="GET" class="flex items-center">
@@ -44,23 +49,24 @@
         </div>
     </nav>
     
-<div class="container">
-    <div class="col-auto"
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+    <!-- Contenedor principal -->
+    <div class="container mx-auto max-w-4xl px-4 py-8 ">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <main class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            {% block content %}{% endblock %}
+        </main>
     </div>
-</div>
-    <main class="container mx-auto px-4 py-8">
-        {% block content %}{% endblock %}
-    </main>
     
     {% block scripts %}
-<script src="{{ url_for('static', filename='js/script-calendar.js') }}"></script>
-{% endblock %}
+    <script src="{{ url_for('static', filename='js/script-calendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme-toggle.js') }}"></script>
+    {% endblock %}
 </body>
 </html>

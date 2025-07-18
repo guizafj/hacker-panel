@@ -18,8 +18,20 @@ class MyRenderer(mistune.HTMLRenderer):
         super().__init__()
         self.obj = obj
 
-    def image(self, src, alt="", title=None):
-        # Construir la ruta de la imagen dinámicamente
+    def image(self, src, alt="", title=None, **kwargs):
+        """
+        Renderiza imágenes en Markdown, manejando diferentes formatos de enlaces.
+        
+        Args:
+            src (str): La fuente de la imagen.
+            alt (str): Texto alternativo para la imagen.
+            title (str): Título opcional para la imagen.
+            **kwargs: Argumentos adicionales pasados por Mistune.
+        
+        Returns:
+            str: HTML renderizado para la imagen.
+        """
+        # Determinar la categoría y el directorio base según el tipo de objeto
         if isinstance(self.obj, Theory):
             category = self.obj.category
             base_dir = 'theory'
@@ -30,17 +42,19 @@ class MyRenderer(mistune.HTMLRenderer):
             category = self.obj.category
             base_dir = 'scripts'
         else:
-            # Manejar el caso en que el objeto no sea de un tipo conocido
-            return None  # O lanzar una excepción
+            return f'<img src="{src}" alt="{alt}" title="{title or alt}" />'
 
-        # Verificar si es un enlace interno de Obsidian
+        # Manejar enlaces internos de Obsidian (![[Pasted image.png]])
         if src.startswith("![[") and src.endswith("]]"):
-            filename = src[2:-2]  # Extraer el nombre del archivo
-        elif re.match(r".*\((.*?)\).*", src):
-            filename = re.match(r".*\((.*?)\).*", src).group(1)
+            filename = src[3:-2]  # Extraer el nombre del archivo
+        # Manejar enlaces estándar de Markdown (![alt texto](image.png))
+        elif re.match(r"!\[.*?\]\((.*?)\)", src):
+            match = re.match(r"!\[.*?\]\((.*?)\)", src)
+            filename = match.group(1)
         else:
             filename = src  # Usar el nombre del archivo tal como está
 
+        # Generar la URL para la imagen
         image_url = url_for('data.view_image', base_dir=base_dir, category=category, filename=filename)
         return f'<img src="{image_url}" alt="{alt}" title="{title or alt}" />'
 
@@ -119,7 +133,7 @@ def view_theory(theory_id):
         print(content_md)  # Agrega esta línea
         # se pasa la categoria al render
         renderer = MyRenderer(theory)
-        markdown = mistune.Markdown(content_md)
+        markdown = mistune.Markdown(renderer=renderer)
         content_html = markdown(content_md)
         return render_template('theory_detail.html', title=theory.title, content=content_html)
     except FileNotFoundError:
