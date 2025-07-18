@@ -11,7 +11,7 @@
     <ul class="space-y-4">
         {% for term in checklist["Checklist"] %}
         <li class="bg-white shadow-md rounded-lg p-4">
-            <strong class="text-lg font-semibold">{{ term["Objetivo"] }}</strong> - {{ term["Metodologia"] }}<br>
+            <strong class="text-lg font-semibold text-gray-600">{{ term["Objetivo"] }}</strong> - {{ term["Metodologia"] }}<br>
             <em class="text-gray-600">{{ term["Fecha"] }}</em>
         </li>
         {% endfor %}
