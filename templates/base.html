@@ -8,21 +8,20 @@
     <!-- Tailwind CSS -->
     <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
 
+    <!-- Markdown CSS -->
+    {% if extra_css == 'markdown' %}
+    <link href="{{ url_for('static', filename='css/markdown.css') }}" rel="stylesheet">
+    {% endif %}
+
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    
     <!-- FullCalendar JS (solo CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.8/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.8/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.8/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/list@6.1.8/index.global.min.js"></script>
-    
-
-    <!-- FullCalendar CSS -->
-    {% if 'calendar' in extra_css %}
-    <link href="{{ url_for('static', filename='css/calendar.css') }}" rel="stylesheet">
-    {% endif %}
-
-    <!-- Favicon -->
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
     {% block extra_css %}{% endblock %}
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -34,13 +33,32 @@
                 <a href="{{ url_for('generales.index') }}">Hacker Panel</a>
             </div>
             <div class="flex space-x-4">
-                <a href="{{ url_for('task.add_task') }}" class="text-gray-300 hover:text-white">Añadir Tarea</a>
                 <a href="{{ url_for('data.glosario') }}" class="text-gray-300 hover:text-white">Glosario</a>
                 <a href="{{ url_for('data.checklist') }}" class="text-gray-300 hover:text-white">Checklist</a>
                 <a href="{{ url_for('data.list_writeups') }}" class="text-gray-300 hover:text-white">Write Ups</a>
                 <a href="{{ url_for('data.list_scripts') }}" class="text-gray-300 hover:text-white">Scripts</a>
                 <a href="{{ url_for('data.list_data') }}" class="text-gray-300 hover:text-white">Apuntes</a>
             </div>
+
+            <!-- Dropdown Utilidades -->
+                <div class="relative inline-block text-left">
+                    <div>
+                        <button type="button" class="inline-flex justify-center w-full text-gray-300 hover:text-white rounded-md shadow-sm px-4 py-2 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500" id="utilidades-dropdown-button" aria-expanded="false" aria-haspopup="true">
+                            Utilidades
+                            <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1" id="utilidades-dropdown">
+                        <div class="py-1" role="none">
+                            <a href="{{ url_for('task.add_task') }}" class="text-gray-700 dark:text-gray-300 block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem" tabindex="-1">Añadir Tarea</a>
+                            <a href="{{ url_for('data.add_term') }}" class="text-gray-700 dark:text-gray-300 block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem" tabindex="-1">Añadir término</a>
+                            <a href="{{ url_for('data.add_objetive') }}" class="text-gray-700 dark:text-gray-300 block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem" tabindex="-1">Añadir Objetivo</a>
+                        </div>
+                    </div>
+                </div>
+                
             <!-- Barra de búsqueda -->
             <form action="{{ url_for('data.search') }}" method="GET" class="flex items-center">
                 <input type="text" name="q" placeholder="Buscar..." class="bg-gray-700 text-white rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -50,7 +68,7 @@
     </nav>
     
     <!-- Contenedor principal -->
-    <div class="container mx-auto max-w-4xl px-4 py-8 ">
+    <div class="container mx-auto max-w-4xl px-4 py-8 lg:max-w-[1080px]">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -67,6 +85,29 @@
     {% block scripts %}
     <script src="{{ url_for('static', filename='js/script-calendar.js') }}"></script>
     <script src="{{ url_for('static', filename='js/theme-toggle.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const glosarioDropdownButton = document.querySelector('#utilidades-dropdown-button');
+            const glosarioDropdown = document.querySelector('#utilidades-dropdown');
+
+            glosarioDropdownButton.addEventListener('click', function() {
+                glosarioDropdown.classList.toggle('hidden');
+            });
+
+            checklistDropdownButton.addEventListener('click', function() {
+                checklistDropdown.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!glosarioDropdownButton.contains(event.target) && !glosarioDropdown.contains(event.target)) {
+                    glosarioDropdown.classList.add('hidden');
+                }
+                if (!checklistDropdownButton.contains(event.target) && !checklistDropdown.contains(event.target)) {
+                    checklistDropdown.classList.add('hidden');
+                }
+            });
+        });
+    </script>
     {% endblock %}
 </body>
 </html>

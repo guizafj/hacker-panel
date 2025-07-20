@@ -74,7 +74,8 @@ talisman.init_app(
         'img-src': ["'self'", "data:", "https:"],
         'connect-src': ["'self'", "https://cdn.jsdelivr.net"]
     },
-    force_https=False
+    force_https=False,
+    frame_options='DENY'
 )
 csrf.init_app(app)
 

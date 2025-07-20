@@ -1,0 +1,79 @@
+/* Estilos para Markdown */
+.markdown-body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    line-height: 1.6;
+    color: #24292e;
+    background-color: #ffffff;
+    padding: 16px;
+    border-radius: 6px;
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+    border-bottom: 1px solid #eaecef;
+    padding-bottom: 0.3em;
+    margin-bottom: 1em;
+    font-weight: 600;
+}
+
+.markdown-body pre {
+    background-color: #f6f8fa;
+    padding: 16px;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+.markdown-body table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.markdown-body table th, .markdown-body table td {
+    border: 1px solid #dfe2e5;
+    padding: 8px;
+}
+
+.markdown-body a {
+    color: #0366d6;
+    text-decoration: none;
+}
+
+.markdown-body a:hover {
+    text-decoration: underline;
+}
+
+/* Estilos para resaltado de código */
+.codehilite {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+    font-size: 14px;
+}
+
+.codehilite pre {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.codehilite .highlight {
+    background: #f6f8fa;
+}
+
+/* Estilos para Markdown en tema oscuro */
+.dark .markdown-body {
+    color: #e5e7eb; /* Texto claro */
+    background-color: #1f2937; /* Fondo oscuro */
+}
+
+.dark .markdown-body pre {
+    background-color: #374151; /* Fondo oscuro para bloques de código */
+}
+
+.dark .markdown-body table th, .dark .markdown-body table td {
+    border: 1px solid #4b5563; /* Bordes claros para tablas */
+}
+
+.dark .markdown-body a {
+    color: #3b82f6; /* Enlaces en azul claro */
+}

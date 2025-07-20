@@ -2,7 +2,14 @@
 
 {% block title %} {writeup.title} {% endblock %}
 
+{% block extra_css %}
+{% set extra_css = 'markdown' %}
+{% endblock %}
+
 {% block content %}
-<h1>{{ title }}</h1>
-<div>{{ content|safe }}</div>
+<div class="container mx-auto max-w-6xl px-4 py-8">
+    <div class="markdown-body">
+        {{ content|safe }}
+    </div>
+</div>
 {% endblock %}
