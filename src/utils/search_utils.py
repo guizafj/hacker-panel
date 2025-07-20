@@ -104,32 +104,6 @@ async def populate_whoosh_index():
             except FileNotFoundError:
                 print(f"Archivo no encontrado: {theory.file_path}")
 
-        # Indexar Glosario
-        try:
-            with open("data/glosario.json", 'r', encoding='utf-8') as f:
-                glosario = json.load(f)
-                for item in glosario.get("Glosario", []):
-                    content = f"{item.get('Termino', '')} {item.get('traduccion', '')} {item.get('Contexto', '')}"
-                    print(f"Contenido antes del preprocesamiento: {content}")  # Agrega este log
-                    await add_document_to_index(writer, f"glosario-{item.get('Termino')}", item.get('Termino', 'Sin título'), content, "glosario", "glosario")
-        except FileNotFoundError:
-            print("Archivo glosario.json no encontrado")
-        except json.JSONDecodeError:
-            print("Error al decodificar glosario.json")
-
-        # Indexar Checklist
-        try:
-            with open("data/checklist.json", 'r', encoding='utf-8') as f:
-                checklist = json.load(f)
-                for item in checklist.get("Checklist", []):
-                    content = f"{item.get('Objetivo', '')} {item.get('Metodologia', '')} {item.get('Fecha', '')}"
-                    print(f"Contenido antes del preprocesamiento: {content}")  # Agrega este log
-                    await add_document_to_index(writer, f"checklist-{item.get('Objetivo')}", item.get('Objetivo', 'Sin título'), content, "checklist", "checklist")
-        except FileNotFoundError:
-            print("Archivo checklist.json no encontrado")
-        except json.JSONDecodeError:
-            print("Error al decodificar checklist.json")
-
     await index_data()
     writer.commit()
 
@@ -175,17 +149,6 @@ async def search_whoosh(query):
                     item = WriteUps.query.get(int(hit['id'].split('-')[1]))
                 elif model_type == 'theory':
                     item = Theory.query.get(int(hit['id'].split('-')[1]))
-                elif model_type == 'glosario':
-                    item = {
-                        'Termino': hit['title'],
-                        'Contexto': hit.get('content', 'Sin contexto')  # Usar get() para evitar KeyError
-                    }
-                elif model_type == 'checklist':
-                    item = {
-                        'Objetivo': hit['title'],
-                        'Metodologia': hit.get('content', 'Sin metodología')  # Usar get() para evitar KeyError
-                    }
-
                 if item:
                     results.append({
                         'title': hit['title'],
@@ -203,3 +166,63 @@ async def initialize_search_index():
     except:
         create_whoosh_index()
         await populate_whoosh_index()
+
+def index_glossary():
+    """Indexa los términos del glosario en Whoosh."""
+    from whoosh.fields import Schema, TEXT, ID
+    from whoosh.index import create_in
+    from src.models.glossary import Term
+
+    schema = Schema(
+        id=ID(stored=True),
+        term=TEXT(stored=True),
+        translation=TEXT(stored=True),
+        description=TEXT(stored=True)
+    )
+
+    index_dir = "index/glossary"
+    if not os.path.exists(index_dir):
+        os.makedirs(index_dir)
+
+    ix = create_in(index_dir, schema)
+    writer = ix.writer()
+
+    for term in Term.query.all():
+        writer.add_document(
+            id=str(term.id),
+            term=term.term,
+            translation=term.translation,
+            description=term.description
+        )
+
+    writer.commit()
+    
+def index_checklist():
+    """Indexar los objetivos del checklist en Whoosh"""
+    from whoosh.fields import Schema, TEXT, ID
+    from whoosh.index import create_in
+    from src.models.checklist import Objetive   
+    
+    schema = Schema(
+        id=ID(stored=True),
+        Objetive=TEXT(stored=True),
+        methodology=TEXT(stored=True),
+        description=TEXT(stored=True)
+    )
+    
+    index_dir = "index/checklist"
+    if not os.path.exists(index_dir):
+        os.makedirs(index_dir)
+
+    ix = create_in(index_dir, schema)
+    writer = ix.writer()
+    
+    for objetive in Objetive.query.all():
+        writer.add_document(
+            id=str(objetive.id),
+            objetive=objetive.objetive,
+            methodology=objetive.methodology,
+            description=objetive.description
+        )
+
+    writer.commit()

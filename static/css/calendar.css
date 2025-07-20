@@ -3,59 +3,181 @@
     font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
+/* Título de la barra de herramientas */
 .fc-toolbar-title {
-    font-size: 1.25rem !important;
-    line-height: 1.75rem !important;
-    font-weight: 700 !important;
-    color: rgb(0 123 255) !important;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+    color: #3b82f6; /* Azul claro */
 }
 
 @media (prefers-color-scheme: dark) {
     .fc-toolbar-title {
-        color: rgb(0 86 179) !important;
+        color: #aed6f1; /* Azul claro con mejor contraste */
     }
 }
 
+/* Botones */
 .fc-button {
-    background-color: rgb(0 123 255) !important;
-    color: #ffffff !important;
-    border: none !important;
-    padding: 5px 10px !important;
-    border-radius: 4px !important;
-    cursor: pointer !important;
+    background-color: #3b82f6; /* Azul claro */
+    color: #ffffff; /* Texto blanco */
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 .fc-button:hover {
-    background-color: rgb(29 78 216) !important;
+    background-color: #2563eb; /* Azul más oscuro */
 }
 
 @media (prefers-color-scheme: dark) {
     .fc-button {
-        background-color: rgb(0 86 179) !important;
+        background-color: #1e40af; /* Azul oscuro */
     }
 
     .fc-button:hover {
-        background-color: rgb(30 64 175) !important;
+        background-color: #3064a5; /* Azul más oscuro */
     }
 }
 
+/* Día actual */
 .fc-day-today {
-    background-color: rgb(239 246 255) !important;
+    background-color: #e0f2fe; /* Azul claro */
+    color: #000000; /* Texto negro */
 }
 
 @media (prefers-color-scheme: dark) {
     .fc-day-today {
-        background-color: rgb(55 65 81) !important;
+        background-color: #374151; /* Gris oscuro */
+        color: #ffffff; /* Texto blanco */
     }
 }
 
+/* Estilos para eventos en el calendario */
 .fc-daygrid-event {
-    background-color: rgb(34 197 94) !important;
-    color: rgb(255 255 255) !important;
+    background-color: #1e3a8a; /* Azul más oscuro para mejor contraste */
+    color: #ffffff; /* Texto blanco */
+    border: 1px solid #1e40af; /* Bordes azules oscuros */
 }
 
 @media (prefers-color-scheme: dark) {
     .fc-daygrid-event {
-        background-color: rgb(21 128 61) !important;
+        background-color: #3064a5; /* Azul oscuro */
+        color: #ffffff; /* Texto blanco */
+        border: 1px solid #aed6f1; /* Bordes azules claros */
+    }
+}
+
+/* Estilos para eventos en la vista de semana */
+.fc-timegrid-event {
+    background-color: #1e3a8a; /* Azul más oscuro para mejor contraste */
+    color: #ffffff; /* Texto blanco */
+    border: 1px solid #1e40af; /* Bordes azules oscuros */
+}
+
+@media (prefers-color-scheme: dark) {
+    .fc-timegrid-event {
+        background-color: #3064a5; /* Azul oscuro */
+        color: #ffffff; /* Texto blanco */
+        border: 1px solid #aed6f1; /* Bordes azules claros */
+    }
+}
+
+/* Estilos para eventos en la vista de lista */
+.fc-list-event {
+    background-color: #1e3a8a; /* Azul más oscuro para mejor contraste */
+    color: #ffffff; /* Texto blanco */
+    border: 1px solid #1e40af; /* Bordes azules oscuros */
+}
+
+@media (prefers-color-scheme: dark) {
+    .fc-list-event {
+        background-color: #3064a5; /* Azul oscuro */
+        color: #ffffff; /* Texto blanco */
+        border: 1px solid #aed6f1; /* Bordes azules claros */
+    }
+}
+
+/* Ajustar el contraste de los bordes en hover */
+.fc-daygrid-event:hover, .fc-timegrid-event:hover, .fc-list-event:hover {
+    border-color: #3b82f6; /* Azul claro */
+}
+
+@media (prefers-color-scheme: dark) {
+    .fc-daygrid-event:hover, .fc-timegrid-event:hover, .fc-list-event:hover {
+        border-color: #aed6f1; /* Azul claro con mejor contraste */
+    }
+}
+
+/* Estilos para las líneas de la cuadrícula */
+.fc-scrollgrid th {
+    border: 1px solid #d1d5db; /* Gris claro */
+    color: #374151; /* Texto gris oscuro */
+}
+
+.fc-scrollgrid td {
+    border: 1px solid #d1d5db; /* Gris claro */
+}
+
+@media (prefers-color-scheme: dark) {
+    .fc-scrollgrid th {
+        border: 1px solid #4b5563; /* Gris más oscuro */
+        color: #d1d5db; /* Texto gris claro */
+    }
+
+    .fc-scrollgrid td {
+        border: 1px solid #4b5563; /* Gris más oscuro */
+    }
+}
+
+/* Estilos para los nombres de los días en la vista de mes */
+.fc-col-header-cell {
+    color: #374151; /* Texto gris oscuro */
+    font-weight: 600;
+    padding: 0.5em;
+}
+
+@media (prefers-color-scheme: dark) {
+    .fc-col-header-cell {
+        color: #d1d5db; /* Texto gris claro */
+    }
+}
+
+/* Estilos para las fechas en la vista de mes */
+.fc-daygrid-day-number {
+    color: #374151; /* Texto gris oscuro */
+    padding: 0.5em;
+}
+
+@media (prefers-color-scheme: dark) {
+    .fc-daygrid-day-number {
+        color: #d1d5db; /* Texto gris claro */
+    }
+}
+
+/* Estilos para las horas en la vista de semana y día */
+.fc-timegrid-slot-label-cushion {
+    color: #374151; /* Texto gris oscuro */
+}
+
+@media (prefers-color-scheme: dark) {
+    .fc-timegrid-slot-label-cushion {
+        color: #d1d5db; /* Texto gris claro */
+    }
+}
+
+/* Estilos para la barra superior en la vista de lista */
+.fc-list-day {
+    background-color: #4b5563; /* Gris más oscuro para mejor contraste */
+    color: #ffffff; /* Texto blanco */
+    padding: 0.5em;
+    font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+    .fc-list-day {
+        background-color: #374151; /* Gris aún más oscuro para el tema oscuro */
+        color: #d1d5db; /* Texto gris claro */
     }
 }

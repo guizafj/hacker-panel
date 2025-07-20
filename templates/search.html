@@ -3,13 +3,11 @@
 {% block title %} Resultado de busqueda {% endblock %}
 
 {% block content %}
-
-<h1>Search Results</h1>
-<form action="{{ url_for('data.search') }}" method="GET">
-    <input type="text" name="q" value="{{ query }}">
-    <button type="submit">Buscar</button>
-</form>
-
+    <form action="{{ url_for('data.search') }}" method="GET" class="flex items-center">
+        <input type="text" name="q" placeholder="Buscar..." class="bg-gray-700 text-white rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <button type="submit" class="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded-md">Buscar</button>
+    </form>
+<br>
 {% if results %}
     <ul>
         {% for result in results %}
@@ -22,10 +20,6 @@
                         {{ url_for('data.view_writeup', writeup_id=result.object.id) }}
                     {% elif result.model_type == 'theory' %}
                         {{ url_for('data.view_theory', theory_id=result.object.id) }}
-                    {% elif result.model_type == 'glosario' %}
-                        {{ url_for('data.glosario') }}
-                    {% elif result.model_type == 'checklist' %}
-                        {{ url_for('data.checklist') }}
                     {% else %}
                         #  URL no definida
                     {% endif %}
@@ -36,5 +30,37 @@
 {% else %}
     <p>No results found for "{{ query }}"</p>
 {% endif %}
+<br>
+    <!-- Resultados del glosario -->
+    {% if glossary_results %}
+        <h2 class="text-xl font-semibold mt-6">Resultados en el glosario:</h2>
+        <ul class="space-y-4">
+            {% for term in glossary_results %}
+            <li class="bg-white shadow-md rounded-lg p-4">
+                <strong class="text-lg font-semibold text-gray-600">{{ term.term }}:</strong>
+                <span class="text-lg text-gray-600">{{ term.translation }}</span><br>
+                <em class="text-gray-600">{{ term.description }}</em>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No se encontraron resultados en el glosario.</p>
+    {% endif %}
+
+    <!-- Resultados del checklist -->
+    {% if checklist_results %}
+        <h2 class="text-xl font-semibold mt-6">Resultados en el checklist:</h2>
+        <ul class="space-y-4">
+            {% for objetive in checklist_results %}
+            <li class="bg-white shadow-md rounded-lg p-4">
+                <strong class="text-lg font-semibold text-gray-600">{{ objetive.objetive }}:</strong>
+                <span class="text-lg text-gray-600">{{ objetive.methodology }}</span><br>
+                <em class="text-gray-600">{{ objetive.description }}</em>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No se encontraron resultados en el checklist.</p>
+    {% endif %}
 
 {% endblock %}

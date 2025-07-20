@@ -3,20 +3,36 @@
 {% block title %}Checklist - Lista de objetivos{% endblock %}
 
 {% block content %}
-
-{% if checklist %}
 <div class="container mx-auto mt-8">
     <h1 class="text-2xl font-bold mb-4">Checklist</h1>
-    <!-- Mostrar objetivos del checklist -->
-    <ul class="space-y-4">
-        {% for term in checklist["Checklist"] %}
-        <li class="bg-white shadow-md rounded-lg p-4">
-            <strong class="text-lg font-semibold text-gray-600">{{ term["Objetivo"] }}</strong> - {{ term["Metodologia"] }}<br>
-            <em class="text-gray-600">{{ term["Fecha"] }}</em>
-        </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No hay datos disponibles en la Checklist.</p>
-{% endif %}
+    {% if checklist %}
+        <!-- Mostrar términos del glosario -->
+        <ul class="space-y-4">
+            {% for objetive in checklist %}
+            <li class="bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
+                <div>
+                    <strong class="text-lg font-semibold text-gray-600">{{ objetive.objetive }}:</strong>
+                    <span class="text-lg text-gray-600">{{ objetive.methodology }}</span><br>
+                    <em class="text-gray-600">{{ objetive.description }}</em>
+                    <p class="text-gray-600">Fecha Objetivo: {{ objetive.date_target }}</p>
+                    <p class="text-gray-600">Estado: {{ objetive.status }}</p>
+                </div>
+                <div class="space-x-2">
+                    <a href="{{ url_for('data.edit_objetive', objetive_id=objetive.id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Editar
+                    </a>
+                    <form action="{{ url_for('data.delete_objetive', objetive_id=objetive.id) }}" method="POST" class="inline">
+                        {{ form.csrf_token }}
+                        <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                            Eliminar
+                        </button>
+                    </form>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No hay datos disponibles en la checklist.</p>
+    {% endif %}
+</div>
 {% endblock %}

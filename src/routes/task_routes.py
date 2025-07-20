@@ -52,7 +52,7 @@ def add_task():
 def edit_task(task_id):
     task = Task.query.get_or_404(task_id)
     form = TaskForm(obj=task)
-    
+
     if form.validate_on_submit():
         task.title = form.title.data
         task.description = form.description.data
@@ -65,11 +65,13 @@ def edit_task(task_id):
         task.days_of_week = ','.join(form.days_of_week.data) if form.days_of_week.data else ''
         task.start_recur = form.start_recur.data
         task.end_recur = form.end_recur.data
-        
+
+        current_app.logger.info(f"Task ID: {task_id}, Recurring: {task.recurring}, Days of Week: {task.days_of_week}, Start Recur: {task.start_recur}, End Recur: {task.end_recur}") # Add this line
+
         db.session.commit()
         flash('Tarea actualizada exitosamente!', 'success')
         return redirect(url_for('generales.index'))
-        
+
     return render_template('edit_task.html', form=form, task=task)
 
 @task_bp.route('/toggle_complete/<int:task_id>', methods=['POST'])
@@ -116,8 +118,12 @@ def api_tasks():
                 print(f"Task ID: {task.id}, Start Date: {start_date}, End Date: {end_date}, Days of Week: {days_of_week}")
 
                 if start_date and end_date and days_of_week:
-                    # Calcular la duración de la tarea original
-                    duration = task.end_date - task.start_date
+                    # Validar que start_date y end_date no sean None
+                    if task.start_date and task.end_date:
+                        duration = task.end_date - task.start_date
+                    else:
+                        print(f"Error procesando la tarea {task.id}: start_date o end_date es None")
+                        continue
 
                     current_date = start_date
                     while current_date <= end_date:

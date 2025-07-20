@@ -1,22 +1,36 @@
 {% extends "base.html" %}
 
-{% block title %}Glosario - Lista de terminos{% endblock %}
+{% block title %}Glosario - Lista de términos{% endblock %}
 
 {% block content %}
-
-{% if glosario %}
 <div class="container mx-auto mt-8">
-    <h1 class="text-2x1 font-bold mb-4">Glosario</h1>
-    <!-- Mostrar términos del glosario -->
-    <ul class= "space-y-4">
-        {% for term in glosario["Glosario"] %}
-        <li class= "bg-white shadow-md rounded-lg p-4">
-            <strong class="text-lg font-semibold text-gray-600">{{ term["Termino"] }}:</strong> <span class="text-lg text-gray-600"> {{term["traduccion"] }}</span><br>
-            <em class="text-gray-600">{{ term["Contexto"] }}</em>
-        </li>
-{% endfor %}
-    </ul>
-{% else %}
-    <p>No hay datos disponibles en el glosario.</p>
-{% endif %}
+    <h1 class="text-2xl font-bold mb-4">Glosario</h1>
+    {% if glosario %}
+        <!-- Mostrar términos del glosario -->
+        <ul class="space-y-4">
+            {% for term in glosario %}
+            <li class="bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
+                <div>
+                    <strong class="text-lg font-semibold text-gray-600">{{ term.term }}:</strong>
+                    <span class="text-lg text-gray-600">{{ term.translation }}</span><br>
+                    <em class="text-gray-600">{{ term.description }}</em>
+                </div>
+                <div class="space-x-2">
+                    <a href="{{ url_for('data.edit_term', term_id=term.id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Editar
+                    </a>
+                    <form action="{{ url_for('data.delete_term', term_id=term.id) }}" method="POST" class="inline">
+                        {{ form.csrf_token }}
+                        <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                            Eliminar
+                        </button>
+                    </form>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No hay datos disponibles en el glosario.</p>
+    {% endif %}
+</div>
 {% endblock %}
