@@ -173,6 +173,6 @@ Distribuido bajo la licencia MIT. Si te resulta útil, no dudes en usarlo, compa
 
 ## ✍️ Autor
 
-Francisco Javier Díaz Guiza
+guizafj
 🌐 Sitio web: [www.dguiza.dev](www.dguiza.dev) — 🐙 GitHub: [https://github.com/guizafj](https://github.com/guizafj)
 Creador y mantenedor de Hacker Panel. Enfocado en backend con Python, aprendizaje autodidacta y formación en ciberseguridad.
