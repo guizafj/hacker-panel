@@ -45,14 +45,23 @@ class MyRenderer(mistune.HTMLRenderer):
                 return f'<img src="{src}" alt="{alt}" title="{title or alt}" />'
 
             # Manejar enlaces internos de Obsidian (![[Pasted image.png]])
-            if src.startswith("![[") and src.endswith("]]"):
-                filename = src[3:-2]  # Extraer el nombre del archivo
+            if re.match(r"!\[\[(.*?)\]\]", src):
+                match = re.match(r"!\[\[(.*?)\]\]", src)
+                filename = match.group(1)  # Extraer el nombre del archivo
             # Manejar enlaces estándar de Markdown (![alt texto](image.png))
             elif re.match(r"!\[.*?\]\((.*?)\)", src):
                 match = re.match(r"!\[.*?\]\((.*?)\)", src)
                 filename = match.group(1)
             else:
                 filename = src  # Usar el nombre del archivo tal como está
+
+            # Validar que filename no sea None o vacío
+            if not filename:
+                current_app.logger.warning(f"Nombre de archivo de imagen vacío o None: {src}")
+                return f'<img src="{src}" alt="{alt}" title="{title or alt}" />'
+
+            # Limpiar el nombre del archivo
+            filename = filename.strip()  # Eliminar espacios en blanco al principio y al final
 
             # Generar la URL para la imagen
             image_url = url_for('data.view_image', base_dir=base_dir, category=category, filename=os.path.join('img', filename))
@@ -74,6 +83,12 @@ class MyRenderer(mistune.HTMLRenderer):
         except Exception as e:
             current_app.logger.error(f"Error al resaltar el bloque de código (lang={lang}): {e}", exc_info=True)
             return f'<pre><code>{mistune.escape(code)}</code></pre>'
+        
+@data_bp.route('/<base_dir>/<category>/<path:filename>')
+def view_image(base_dir, category, filename):
+    """Sirve las imágenes desde el directorio de contenido."""
+    img_dir = os.path.join('data', base_dir, category)
+    return send_from_directory(img_dir, filename)
 
 @data_bp.route("/search")
 async def search():
@@ -292,9 +307,5 @@ def view_theory(theory_id):
     except FileNotFoundError:
         return "Archivo no encontrado", 404
 
-@data_bp.route('/data/<base_dir>/<category>/<path:filename>')
-def view_image(base_dir, category, filename):
-    """Sirve las imágenes desde el directorio de contenido."""
-    img_dir = os.path.join('data', base_dir, category)
-    return send_from_directory(img_dir, filename)
+
 
