@@ -212,28 +212,6 @@ Recomendación sobre `pdm.lock`: mantener `pdm.lock` en el repositorio es útil 
 
 ---
 
-
-
-## 🤝 Contribuciones
-
-Este proyecto está abierto a mejoras. Si encuentras alguna vulnerabilidad, problema con las dependencias o quieres mejorar la accesibilidad, por favor abre un issue o PR.
-
-Para contribuir:
-
-1. Haz un fork del repositorio.
-2. Crea tu rama (git checkout -b feature/mi-mejora).
-3. Haz commit de tus cambios.
-4. Abre un pull request explicando tu propuesta.
-
-## � Licencia
-
-Distribuido bajo la licencia MIT.
-
-## ✍️ Autor
-
-guizafj — creador y mantenedor de Hacker Panel.
-uimiento de tu progreso y acceder a información relevante.
-
 ## Próximamente
 
 *   Implementación del estado de los checks para un seguimiento más claro del progreso.
