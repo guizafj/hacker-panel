@@ -8,14 +8,12 @@ Este proyecto está construido con **Flask**, usa archivos `.md` como fuente pri
 
 ## 🎯 Objetivo del Proyecto
 
-2.  Instala [PDM](https://pdm.fming.dev/latest/) (gestor moderno de dependencias y entornos):
+El objetivo principal es proporcionar una **plataforma centralizada** donde puedas:
 
 - Planificar tareas y rutinas de estudio.
 - Almacenar write-ups de laboratorios o CTFs.
 - Documentar scripts de automatización y herramientas propias.
 - Consultar rápidamente conceptos clave a través de un glosario.
-
-3.  Instala las dependencias y crea el entorno virtual con PDM:
 - Buscar términos o ideas a través de un motor de búsqueda interno.
 
 ---
@@ -27,31 +25,43 @@ Este proyecto está construido con **Flask**, usa archivos `.md` como fuente pri
 - Crear, editar y eliminar tareas fácilmente.
 - Reorganizar eventos con **drag & drop**.
 - Marcar tareas como completadas.
-- Crear tareas **recurrentes** (en desarrollo).
+- Crear tareas **recurrentes** con días específicos de la semana.
 - Visualización integrada con FullCalendar.
+- API REST para gestión de tareas (`/task/api/tasks`).
 
-    pdm run flask --app app run  # Ejecuta una vez para crear `hacker-panel.db`
+### 📝 Write-Ups
 
 - Visualización de informes técnicos en formato Markdown convertido a HTML.
+- Renderizado personalizado de imágenes con soporte para enlaces Obsidian (`![[imagen.png]]`).
+- Resaltado de sintaxis de código con Pygments.
 - Ideal para documentar laboratorios, retos o procesos complejos.
 
 ### 🐍 Scripts
 
-    pdm run flask scan-directories # Escanea /data y crea los índices de búsqueda
-- Planeado: descarga directa de cada script y documentación adicional.
+- Lista de scripts con descripción funcional y propósito.
+- Indexado automático en el motor de búsqueda.
+- Categorización por tipo de herramienta o funcionalidad.
 
 ### 📖 Glosario Técnico
 
-- Archivo JSON con términos clave del ámbito técnico y de seguridad.
-- En continuo crecimiento a medida que se avanza en el estudio.
+- Gestión de términos técnicos con traducción y descripción.
+- CRUD completo: agregar, editar, eliminar términos.
+- Búsqueda integrada en el motor principal.
+- Base de datos SQLite para persistencia.
 
-    pdm run python app.py
+### 🔍 Buscador Global
 
 - Motor de búsqueda con **Whoosh** que indexa todo el contenido del directorio `/data`.
 - Soporte para búsqueda por palabra, frase o términos múltiples.
-- Implementación futura de:
-  - Diccionario de sinónimos.
-  - Fragmentos (extractos) de contenido relevante en los resultados.
+- Diccionario de sinónimos integrado (`src/utils/synonyms.json`).
+- Indexado asíncrono con stemming y análisis de texto.
+- Búsqueda combinada: archivos + glosario + checklist.
+
+### ✅ Checklist de Objetivos
+
+- Gestión de objetivos de aprendizaje con metodología y fechas objetivo.
+- Estados de progreso con colores personalizables.
+- Integración con el sistema de búsqueda.
 
 ---
 
@@ -59,54 +69,62 @@ Este proyecto está construido con **Flask**, usa archivos `.md` como fuente pri
 
 ```plaintext
 hacker-panel/
-├── app.py
-## Próximamente
+├── app.py                ← Aplicación Flask principal
+├── config.py             ← Configuración de la aplicación
+├── extensions.py         ← Extensiones Flask (DB, etc.)
+├── pyproject.toml        ← Configuración PDM y dependencias
+├── pdm.lock              ← Lockfile de dependencias
+├── requirements.txt      ← Compatibilidad con pip/venv
 ├── templates/            ← Plantillas HTML (Jinja2)
-├── static/               ← Estilos y scripts JS (Tailwind, FullCalendar)
-├── data/                 ← Contenido de aprendizaje (writeups, scripts, glosario...)
+├── static/               ← Assets frontend
+│   ├── css/
+│   │   ├── accessibility.css  ← Mejoras de accesibilidad
+│   │   ├── markdown.css       ← Estilos para Markdown
+│   │   └── ...
+│   └── js/
+│       ├── accessibility.js   ← Funciones de accesibilidad
+│       └── fullcalendar/      ← Biblioteca de calendario
+├── data/                 ← Contenido de aprendizaje
+│   ├── writeups/
+│   ├── scripts/
+│   └── theory/
+├── src/                  ← Código fuente organizado
+│   ├── routes/           ← Blueprints de Flask
+│   ├── models/           ← Modelos SQLAlchemy
+│   ├── forms/            ← Formularios WTForms
+│   └── utils/            ← Utilidades (búsqueda, scanner)
+├── scripts/              ← Herramientas de mantenimiento
+│   ├── clean_history.sh  ← Limpieza de historial Git
+│   └── NOTAS_CLEAN.md    ← Documentación de limpieza
+├── migrations/           ← Migraciones de base de datos
 ├── instance/             ← Base de datos SQLite
-├── src/                  ← Código organizado por módulos y rutas
-│   ├── routes/
-│   ├── models/
-│   ├── forms/
-│   └── utils/
-├── whoosh_index/         ← Índices de búsqueda
-├── requirements.txt
-└── README.md
+├── whoosh_index/         ← Índices de búsqueda (no versionado)
+└── tests/                ← Tests unitarios
 ```
 
 ## ⚙️ Tecnologías Utilizadas
 
 | Área       | Tecnología                 |
 | ---------- | -------------------------- |
-| Backend    | Flask + SQLAlchemy         |
+| Backend    | Flask + SQLAlchemy + Alembic |
 | Frontend   | Tailwind CSS + HTML + JS   |
 | Calendario | FullCalendar.js            |
-| Markdown   | mistune                    |
-| Búsqueda   | Whoosh                     |
+| Markdown   | mistune + Pygments         |
+| Búsqueda   | Whoosh + stemming          |
 | Plantillas | Jinja2                     |
 | DB local   | SQLite                     |
-
-## 📸 Capturas de Pantalla
-_(En proceso de desarrollo)_
+| Seguridad  | Talisman + CSRF Protection |
+| Gestión deps | PDM (Python Dependency Manager) |
 
 ## 💡 Ejemplo de Uso
 
 Imagina que eres un estudiante de ciberseguridad que está aprendiendo sobre redes. Puedes utilizar Hacker Panel para:
 
-1.  Crear tareas en el calendario para estudiar diferentes protocolos de red (TCP, UDP, IP).
-2.  Almacenar write-ups de laboratorios de redes que hayas completado.
-3.  Documentar scripts de automatización que hayas creado para analizar el tráfico de red.
+1.  Crear tareas recurrentes en el calendario para estudiar diferentes protocolos de red (TCP, UDP, IP).
+2.  Almacenar write-ups de laboratorios de redes con imágenes y código resaltado.
+3.  Documentar scripts de automatización para análisis de tráfico de red.
 4.  Agregar términos clave al glosario, como "SYN flood" o "ARP spoofing".
-5.  Utilizar el buscador para encontrar rápidamente información sobre un concepto específico.
-
-
-## 📦 Instalación y Entornos
-# 😧 Hacker Panel
-
-**Hacker Panel** es una herramienta de productividad y gestión del conocimiento diseñada para estudiantes de ciberseguridad, desarrolladores autodidactas y profesionales junior. Nace como una solución personal para organizar y optimizar el estudio en áreas como redes, hacking ético, programación y fundamentos técnicos. Con Hacker Panel, puedes gestionar tus CTF write-ups, organizar tus recursos de aprendizaje y crear un glosario personalizado, todo en un solo lugar.
-
-Este proyecto está construido con **Flask**, usa archivos `.md` como fuente principal de conocimiento y permite integrarse fácilmente en flujos de trabajo autodidactas. Está publicado bajo **Licencia MIT**, por lo que puedes usarlo, modificarlo y adaptarlo libremente.
+5.  Utilizar el buscador global para encontrar rápidamente información sobre un concepto específico.
 
 ---
 
@@ -217,58 +235,7 @@ Recomendación sobre `pdm.lock`: mantener `pdm.lock` en el repositorio es útil 
 
 ---
 
-## 🔐 Notas de seguridad (importante)
 
-Durante la revisión encontré archivos de certificado/clave (`cert.pem` y `key.pem`) en la raíz del repositorio. Nunca dejes claves privadas comprometidas en el control de versiones público. Recomendaciones inmediatas:
-
-1. Si esos archivos contienen claves privadas en uso, dales de baja (rotación/invalidación) inmediatamente y crea nuevas credenciales.
-2. Elimina las claves del repositorio y del historial Git (no solo `rm`):
-
-```bash
-# Eliminar del índice y añadir a .gitignore
-git rm --cached cert.pem key.pem
-echo "cert.pem" >> .gitignore
-echo "key.pem" >> .gitignore
-
-# Para limpiar el historial (opcional y con precaución): usa la herramienta adecuada, por ejemplo BFG o git filter-repo
-# bfg --delete-files key.pem
-# ó
-# git filter-repo --path key.pem --invert-paths
-```
-
-3. Mantén secretos fuera del repo: usa variables de entorno, servicios de secretos (HashiCorp Vault, GitHub Secrets, AWS Secrets Manager) o archivos en `instance/` que se excluyan del control de versiones.
-
-Si quieres, puedo ayudarte a generar los pasos concretos para eliminar esas claves del historial con `git filter-repo` o `bfg`.
-
----
-
-## 📝 Cambios funcionales (resumen técnico)
-
-- Se añadió `static/css/accessibility.css` y `static/js/accessibility.js` para mejorar accesibilidad (focus, roles ARIA, live regions, gestión de modales y dropdowns).
-- `pyproject.toml` actualizado con lista extensa de dependencias y `pdm` como backend de build.
-- `pdm.lock` generado y añadido (lock completo de dependencias).
-
-Si quieres que genere un CHANGELOG o un PR con estos cambios --y notas de retrocompatibilidad para desarrolladores-- puedo prepararlo.
-
----
-
-## ✅ Comprobaciones rápidas que puedes ejecutar ahora
-
-```bash
-# Ver archivos modificados
-git status --short
-
-# Ver diferencias respecto a main (lista de nombres)
-git diff --name-only main..HEAD
-
-# Exportar requisitos (PDM → pip)
-pdm export --without-hashes -o requirements.txt
-
-# (Opcional) Comprobar que README actualizado está limpio
-git add README.md && git commit -m "docs: actualizar README con resumen de cambios y notas de seguridad" || true
-```
-
----
 
 ## 🤝 Contribuciones
 
@@ -288,3 +255,35 @@ Distribuido bajo la licencia MIT.
 ## ✍️ Autor
 
 guizafj — creador y mantenedor de Hacker Panel.
+uimiento de tu progreso y acceder a información relevante.
+
+## Próximamente
+
+*   Implementación del estado de los checks para un seguimiento más claro del progreso.
+*   Integración con mi sitio web personal: [www.dguiza.dev](www.dguiza.dev) (backend en Django).
+
+## 🤝 Contribuciones
+
+Este proyecto está abierto a mejoras, correcciones y nuevas funcionalidades. Si tienes una idea que se alinea con el propósito del proyecto, ¡tu contribución es bienvenida! Puedes contribuir de las siguientes maneras:
+
+*   Implementando nuevas funcionalidades.
+*   Corrigiendo errores existentes.
+*   Mejorando la documentación.
+*   Proponiendo nuevas ideas y mejoras.
+
+Para contribuir:
+
+1.  Haz un fork del repositorio.
+2.  Crea tu rama (git checkout -b feature/mi-mejora).
+3.  Haz commit de tus cambios.
+4.  Abre un pull request explicando tu propuesta.
+
+## 📜 Licencia
+
+Distribuido bajo la licencia MIT. Si te resulta útil, no dudes en usarlo, compartirlo o adaptarlo a tu flujo de trabajo.
+
+## ✍️ Autor
+
+guizafj
+🌐 Sitio web: [www.dguiza.dev](www.dguiza.dev) — 🐙 GitHub: [https://github.com/guizafj](https://github.com/guizafj)
+Creador y mantenedor de Hacker Panel. Enfocado en backend con Python, aprendizaje autodidacta y formación en ciberseguridad.
