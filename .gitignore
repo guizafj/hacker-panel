@@ -229,3 +229,6 @@ node_modules/
 # entradas específicas (si se nombran en el repo raíz)
 cert.pem
 key.pem
+
+# Directorio de índice Whoosh (no versionar)
+whoosh_index/
