@@ -93,9 +93,6 @@ hacker-panel/
 │   ├── models/           ← Modelos SQLAlchemy
 │   ├── forms/            ← Formularios WTForms
 │   └── utils/            ← Utilidades (búsqueda, scanner)
-├── scripts/              ← Herramientas de mantenimiento
-│   ├── clean_history.sh  ← Limpieza de historial Git
-│   └── NOTAS_CLEAN.md    ← Documentación de limpieza
 ├── migrations/           ← Migraciones de base de datos
 ├── instance/             ← Base de datos SQLite
 ├── whoosh_index/         ← Índices de búsqueda (no versionado)
@@ -126,26 +123,6 @@ Imagina que eres un estudiante de ciberseguridad que está aprendiendo sobre red
 4.  Agregar términos clave al glosario, como "SYN flood" o "ARP spoofing".
 5.  Utilizar el buscador global para encontrar rápidamente información sobre un concepto específico.
 
----
-
-## 🎯 Resumen rápido de cambios recientes (auditado)
-
-He escaneado el estado del repositorio y verificado los cambios más relevantes introducidos recientemente. A continuación encontrarás un resumen accionable para colaboradores:
-
-- pyproject.toml: migración y declaración completa de dependencias (PDM).
-- pdm.lock: archivo de lock grande generado por PDM (graph de dependencias completo).
-- static/css/accessibility.css: nuevas reglas CSS enfocadas en accesibilidad (focus, contraste, skip links, etc.).
-- static/js/accessibility.js: script con mejoras de accesibilidad (gestión de foco, aria, anuncios para lectores de pantalla, handlers de Escape, etc.).
-- src/hacker_panel/__init__.py: marcador de paquete (boilerplate).
-- tests/__init__.py: marcador de paquete para tests.
-- cert.pem y key.pem: certificados/clave privada detectados en el repositorio (ver sección de seguridad abajo).
-
-Si necesitas la lista de cambios con status git exacto, ejecuta en tu máquina:
-
-```bash
-git status --porcelain
-git diff --name-status main..HEAD
-```
 
 ---
 
