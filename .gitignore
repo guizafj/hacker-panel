@@ -232,3 +232,7 @@ key.pem
 
 # Directorio de índice Whoosh (no versionar)
 whoosh_index/
+
+# Documentación personal - excluir archivos .md excepto README.md
+*.md
+!README.md
