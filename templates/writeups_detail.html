@@ -1,15 +1,31 @@
 {% extends "base.html" %}
 
-{% block title %} {writeup.title} {% endblock %}
+{% block title %}{{ title }}{% endblock %}
+{% block meta_description %}Write-up de seguridad: {{ title }}{% endblock %}
 
 {% block extra_css %}
 {% set extra_css = 'markdown' %}
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto max-w-6xl px-4 py-8">
-    <div class="markdown-body">
-        {{ content|safe }}
-    </div>
-</div>
+    <nav aria-label="Breadcrumb" class="mb-4">
+        <ol class="flex text-sm text-gray-600 dark:text-gray-400">
+            <li><a href="{{ url_for('generales.index') }}" class="hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1">Inicio</a></li>
+            <li class="mx-2">/</li>
+            <li><a href="{{ url_for('data.list_writeups') }}" class="hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1">Write Ups</a></li>
+            <li class="mx-2">/</li>
+            <li aria-current="page" class="text-gray-800 dark:text-gray-200">{{ title }}</li>
+        </ol>
+    </nav>
+
+    <article class="markdown-container">
+        <div class="markdown-body">
+            <header>
+                <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">{{ title }}</h1>
+            </header>
+            <div>
+                {{ content|safe }}
+            </div>
+        </div>
+    </article>
 {% endblock %}

@@ -7,25 +7,47 @@ from whoosh.analysis import StemmingAnalyzer
 from src.models.scripts import Scripts
 from src.models.write_ups import WriteUps
 from src.models.theory import Theory
-import spacy
+# import spacy
+import asyncio
+
+WHOOSH_INDEX_DIR = "whoosh_index"
+
+# Cargar modelos de spaCy - temporalmente deshabilitado
+# try:
+#     nlp_es = spacy.load("es_core_news_sm")
+# except OSError:
+#     print("Descargando modelo de spaCy para español...")
+#     spacy.cli.download("es_core_news_sm")
+#     nlp_es = spacy.load("es_core_news_sm")
+
+# try:
+#     nlp_en = spacy.load("en_core_web_sm")
+# except OSError:
+#     print("Descargando modelo de spaCy para inglés...")
+#     spacy.cli.download("en_core_web_sm")
+#     nlp_en = spacy.load("en_core_web_sm")
+
+# Variables dummy para evitar errores
+nlp_es = None
+nlp_en = None
 import asyncio
 
 WHOOSH_INDEX_DIR = "whoosh_index"
 
 # Cargar modelos de spaCy
-try:
-    nlp_es = spacy.load("es_core_news_sm")
-except OSError:
-    print("Descargando modelo de spaCy para español...")
-    spacy.cli.download("es_core_news_sm")
-    nlp_es = spacy.load("es_core_news_sm")
+# try:
+#     nlp_es = spacy.load("es_core_news_sm")
+# except OSError:
+#     print("Descargando modelo de spaCy para español...")
+#     spacy.cli.download("es_core_news_sm")
+#     nlp_es = spacy.load("es_core_news_sm")
 
-try:
-    nlp_en = spacy.load("en_core_web_sm")
-except OSError:
-    print("Descargando modelo de spaCy para inglés...")
-    spacy.cli.download("en_core_web_sm")
-    nlp_en = spacy.load("en_core_web_sm")
+# try:
+#     nlp_en = spacy.load("en_core_web_sm")
+# except OSError:
+#     print("Descargando modelo de spaCy para inglés...")
+#     spacy.cli.download("en_core_web_sm")
+#     nlp_en = spacy.load("en_core_web_sm")
 
 def create_whoosh_index():
     """Crea el índice de Whoosh con stemming."""

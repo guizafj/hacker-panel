@@ -26,3 +26,4 @@ module.exports = {
   plugins: [],
 };
 
+//  npx tailwindcss -i ./static/css/main.css -o ./static/css/output.css --watch

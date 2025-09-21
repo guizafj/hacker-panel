@@ -21,3 +21,8 @@ class Config:
     # Configuración de archivos estáticos
     STATIC_FOLDER = 'static'
     STATIC_URL_PATH = '/static'
+    
+    # Configuración para url_for fuera de requests
+    SERVER_NAME = os.environ.get('SERVER_NAME') or 'localhost:5000'
+    APPLICATION_ROOT = '/'
+    PREFERRED_URL_SCHEME = 'http'

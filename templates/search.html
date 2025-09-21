@@ -1,50 +1,70 @@
 {% extends "base.html" %}
 
-{% block title %} Resultado de busqueda {% endblock %}
+{% block title %}Resultado de búsqueda{% endblock %}
+{% block meta_description %}Resultados de búsqueda en Hacker Panel{% endblock %}
 
 {% block content %}
-    <form action="{{ url_for('data.search') }}" method="GET" class="flex items-center">
-        <input type="text" name="q" placeholder="Buscar..." class="bg-gray-700 text-white rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <button type="submit" class="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded-md">Buscar</button>
+    <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">Resultados de búsqueda</h1>
+    
+    <form action="{{ url_for('data.search') }}" method="GET" class="flex items-center mb-6" role="search" aria-label="Búsqueda en el sitio">
+        <label for="search-page-input" class="sr-only">Buscar</label>
+        <input type="text" id="search-page-input" name="q" placeholder="Buscar..." value="{{ query }}"
+                class="bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-md px-3 py-2 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full max-w-md"
+                required>
+        <button type="submit" class="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            Buscar
+        </button>
     </form>
-<br>
-{% if results %}
-    <ul>
-        {% for result in results %}
-            <li>
-                <strong>{{ result.title }}</strong> ({{ result.model_type }}) - Category: {{ result.category }}
-                <a href="
-                    {% if result.model_type == 'script' %}
-                        {{ url_for('data.view_script', script_id=result.object.id) }}
-                    {% elif result.model_type == 'writeup' %}
-                        {{ url_for('data.view_writeup', writeup_id=result.object.id) }}
-                    {% elif result.model_type == 'theory' %}
-                        {{ url_for('data.view_theory', theory_id=result.object.id) }}
-                    {% else %}
-                        #  URL no definida
-                    {% endif %}
-                ">View</a>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No results found for "{{ query }}"</p>
-{% endif %}
-<br>
+
+    {% if results %}
+        <h2 class="text-xl font-semibold mt-6 mb-4">Resultados generales:</h2>
+        <ul class="space-y-4" role="list" aria-label="Resultados de búsqueda">
+            {% for result in results %}
+                <li class="bg-white dark:bg-gray-700 shadow-md rounded-lg p-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <strong class="text-lg font-semibold text-gray-800 dark:text-gray-200">{{ result.title }}</strong>
+                            <span class="ml-2 px-2 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs rounded-full">{{ result.model_type }}</span>
+                            {% if result.category %}
+                                <span class="ml-2 px-2 py-1 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-300 text-xs rounded-full">{{ result.category }}</span>
+                            {% endif %}
+                        </div>
+                        <a href="
+                            {% if result.model_type == 'script' %}
+                                {{ url_for('data.view_script', script_id=result.object.id) }}
+                            {% elif result.model_type == 'writeup' %}
+                                {{ url_for('data.view_writeup', writeup_id=result.object.id) }}
+                            {% elif result.model_type == 'theory' %}
+                                {{ url_for('data.view_theory', theory_id=result.object.id) }}
+                            {% else %}
+                                #  URL no definida
+                            {% endif %}
+                        " class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Ver
+                            <span class="sr-only">{{ result.title }}</span>
+                        </a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-gray-700 dark:text-gray-300">No se encontraron resultados generales para "{{ query }}"</p>
+    {% endif %}
+
     <!-- Resultados del glosario -->
     {% if glossary_results %}
-        <h2 class="text-xl font-semibold mt-6">Resultados en el glosario:</h2>
-        <ul class="space-y-4">
+        <h2 class="text-xl font-semibold mt-8 mb-4">Resultados en el glosario:</h2>
+        <ul class="space-y-4" role="list" aria-label="Resultados del glosario">
             {% for term in glossary_results %}
-            <li class="bg-white shadow-md rounded-lg p-4">
-                <strong class="text-lg font-semibold text-gray-600">{{ term.term }}:</strong>
-                <span class="text-lg text-gray-600">{{ term.translation }}</span><br>
-                <em class="text-gray-600">{{ term.description }}</em>
+            <li class="bg-white dark:bg-gray-700 shadow-md rounded-lg p-4">
+                <strong class="text-lg font-semibold text-gray-800 dark:text-gray-200">{{ term.term }}:</strong>
+                <span class="text-lg text-gray-700 dark:text-gray-300">{{ term.translation }}</span><br>
+                <em class="text-gray-600 dark:text-gray-400">{{ term.description }}</em>
             </li>
             {% endfor %}
         </ul>
     {% else %}
-        <p>No se encontraron resultados en el glosario.</p>
+        <p class="text-gray-700 dark:text-gray-300 mt-8">No se encontraron resultados en el glosario.</p>
     {% endif %}
 
     <!-- Resultados del checklist -->

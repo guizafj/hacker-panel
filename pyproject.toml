@@ -1,0 +1,82 @@
+[project]
+name = "hacker_panel"
+version = "0.1.0"
+description = "Hacker Panel es una herramienta de productividad y gestión del conocimiento diseñada para estudiantes de ciberseguridad, desarrolladores autodidactas y profesionales junior. Nace como una solución personal para organizar y optimizar el estudio en áreas como redes, hacking ético, programación y fundamentos técnicos. Con Hacker Panel, puedes gestionar tus CTF write-ups, organizar tus recursos de aprendizaje y crear un glosario personalizado, todo en un solo lugar."
+authors = [
+    {name = "FJavier", email = "contacto@dguiza.dev"},
+]
+dependencies = [
+    "alembic==1.16.4",
+    "bandit==1.8.6",
+    "beautifulsoup4==4.13.4",
+    "blinker==1.9.0",
+    "boolean-py==5.0",
+    "CacheControl==0.14.3",
+    "certifi==2025.7.9",
+    "charset-normalizer==3.4.2",
+    "click==8.2.1",
+    "cyclonedx-python-lib==9.1.0",
+    "defusedxml==0.7.1",
+    "docker==7.1.0",
+    "filelock==3.18.0",
+    "Flask==3.1.1",
+    "Flask-Migrate==4.1.0",
+    "Flask-SQLAlchemy==3.1.1",
+    "flask-talisman==1.1.0",
+    "Flask-WTF==1.2.2",
+    "greenlet==3.2.3",
+    "html-sanitizer==2.6.0",
+    "idna==3.10",
+    "itsdangerous==2.2.0",
+    "Jinja2==3.1.6",
+    "license-expression==30.4.3",
+    "lxml==6.0.1",
+    "lxml-html-clean==0.4.2",
+    "Mako==1.3.10",
+    "markdown-it-py==3.0.0",
+    "MarkupSafe==3.0.2",
+    "mdurl==0.1.2",
+    "mistune==3.1.4",
+    "msgpack==1.1.1",
+    "packageurl-python==0.17.1",
+    "packaging==25.0",
+    "pbr==6.1.1",
+    "peewee==3.18.2",
+    "pip-api==0.0.34",
+    "pip-requirements-parser==32.0.1",
+    "pip-audit==2.9.0",
+    "platformdirs==4.3.8",
+    "py-serializable==2.0.0",
+    "Pygments==2.19.2",
+    "pyparsing==3.2.3",
+    "python-dateutil==2.9.0.post0",
+    "python-dotenv==1.1.1",
+    "PyYAML==6.0.2",
+    "requests==2.32.4",
+    "rich==14.0.0",
+    "scout==3.0.3",
+    "setuptools==80.9.0",
+    "six==1.17.0",
+    "sortedcontainers==2.4.0",
+    "soupsieve==2.7",
+    "SQLAlchemy==2.0.41",
+    "stevedore==5.4.1",
+    "toml==0.10.2",
+    "typing-extensions==4.14.1",
+    "urllib3==2.5.0",
+    "Werkzeug==3.1.3",
+    "wheel==0.45.1",
+    "Whoosh==2.7.4",
+    "WTForms==3.2.1",
+]
+requires-python = ">=3.11"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true

@@ -1,0 +1,115 @@
+/* Accessibility Enhancements */
+
+/* Focus styles */
+:focus {
+  outline: 2px solid #3b82f6 !important; /* Blue-500 in Tailwind */
+  outline-offset: 2px !important;
+}
+
+/* Skip to content link */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only.focus\:not-sr-only:focus {
+  position: fixed;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  z-index: 9999;
+}
+
+/* Better form controls */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="url"],
+input[type="tel"],
+input[type="number"],
+input[type="date"],
+textarea,
+select {
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* Improve dark mode readability */
+.dark .dark\:text-gray-400 {
+  color: #9ca3af !important; /* Ensure enough contrast */
+}
+
+.dark .dark\:text-gray-300 {
+  color: #d1d5db !important; /* Ensure enough contrast */
+}
+
+/* Ensure buttons have good padding for touch targets */
+button, 
+.btn,
+[role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Add focus states for interactive elements */
+a:focus,
+button:focus,
+[role="button"]:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Make sure error messages are accessible */
+[role="alert"] {
+  border-left: 4px solid #ef4444;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* High contrast mode support */
+@media (forced-colors: active) {
+  * {
+    forced-color-adjust: none;
+  }
+  
+  button, 
+  [role="button"],
+  a {
+    border: 1px solid currentColor;
+  }
+}
+
+/* Better spacing for form fields */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+/* Improved contrast for placeholder text */
+::placeholder {
+  color: #6b7280 !important;
+  opacity: 1;
+}
+
+/* Ensure proper text scaling */
+html {
+  font-size: 100%;
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 90%;
+  }
+}

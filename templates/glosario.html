@@ -1,27 +1,47 @@
 {% extends "base.html" %}
 
 {% block title %}Glosario - Lista de términos{% endblock %}
+{% block meta_description %}Glosario de términos de ciberseguridad{% endblock %}
 
 {% block content %}
-<div class="container mx-auto mt-8">
-    <h1 class="text-2xl font-bold mb-4">Glosario</h1>
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Glosario</h1>
+        <a href="{{ url_for('data.add_term') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            Añadir Término
+        </a>
+    </div>
+    
     {% if glosario %}
-        <!-- Mostrar términos del glosario -->
-        <ul class="space-y-4">
+        <!-- Filtro de búsqueda -->
+        <div class="mb-6">
+            <label for="filter-terms" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filtrar términos:</label>
+            <input type="text" id="filter-terms" placeholder="Escribe para filtrar términos..." 
+                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    aria-controls="glossary-list">
+        </div>
+        
+        <!-- Listado de términos -->
+        <ul id="glossary-list" class="space-y-4" role="list" aria-label="Lista de términos del glosario">
             {% for term in glosario %}
-            <li class="bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
+            <li class="bg-white dark:bg-gray-700 shadow-md rounded-lg p-4 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                 <div>
-                    <strong class="text-lg font-semibold text-gray-600">{{ term.term }}:</strong>
-                    <span class="text-lg text-gray-600">{{ term.translation }}</span><br>
-                    <em class="text-gray-600">{{ term.description }}</em>
+                    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">{{ term.term }}:
+                        <span class="font-normal">{{ term.translation }}</span>
+                    </h2>
+                    <p class="text-gray-600 dark:text-gray-400 mt-1">{{ term.description }}</p>
                 </div>
-                <div class="space-x-2">
-                    <a href="{{ url_for('data.edit_term', term_id=term.id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <div class="flex space-x-2 self-end md:self-center">
+                    <a href="{{ url_for('data.edit_term', term_id=term.id) }}" 
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        aria-label="Editar término {{ term.term }}">
                         Editar
                     </a>
                     <form action="{{ url_for('data.delete_term', term_id=term.id) }}" method="POST" class="inline">
                         {{ form.csrf_token }}
-                        <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                        <button type="submit" 
+                                class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                                aria-label="Eliminar término {{ term.term }}"
+                                onclick="return confirm('¿Estás seguro de que deseas eliminar este término?');">
                             Eliminar
                         </button>
                     </form>
@@ -30,7 +50,30 @@
             {% endfor %}
         </ul>
     {% else %}
-        <p>No hay datos disponibles en el glosario.</p>
+        <div class="bg-yellow-50 dark:bg-yellow-900 border-l-4 border-yellow-400 p-4 rounded" role="alert">
+            <p class="text-yellow-700 dark:text-yellow-200">No hay datos disponibles en el glosario.</p>
+        </div>
     {% endif %}
-</div>
+
+    <!-- Script para filtrado de términos -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterInput = document.getElementById('filter-terms');
+            if (filterInput) {
+                filterInput.addEventListener('input', function() {
+                    const filterValue = this.value.toLowerCase();
+                    const glossaryItems = document.querySelectorAll('#glossary-list li');
+                    
+                    glossaryItems.forEach(item => {
+                        const termText = item.textContent.toLowerCase();
+                        if (termText.includes(filterValue)) {
+                            item.style.display = 'flex';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+    </script>
 {% endblock %}

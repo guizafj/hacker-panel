@@ -8,12 +8,14 @@ Este proyecto está construido con **Flask**, usa archivos `.md` como fuente pri
 
 ## 🎯 Objetivo del Proyecto
 
-El objetivo principal es proporcionar una **plataforma centralizada** donde puedas:
+2.  Instala [PDM](https://pdm.fming.dev/latest/) (gestor moderno de dependencias y entornos):
 
 - Planificar tareas y rutinas de estudio.
 - Almacenar write-ups de laboratorios o CTFs.
 - Documentar scripts de automatización y herramientas propias.
 - Consultar rápidamente conceptos clave a través de un glosario.
+
+3.  Instala las dependencias y crea el entorno virtual con PDM:
 - Buscar términos o ideas a través de un motor de búsqueda interno.
 
 ---
@@ -28,14 +30,14 @@ El objetivo principal es proporcionar una **plataforma centralizada** donde pued
 - Crear tareas **recurrentes** (en desarrollo).
 - Visualización integrada con FullCalendar.
 
-### 📝 Write-Ups
+    pdm run flask --app app run  # Ejecuta una vez para crear `hacker-panel.db`
 
 - Visualización de informes técnicos en formato Markdown convertido a HTML.
 - Ideal para documentar laboratorios, retos o procesos complejos.
 
 ### 🐍 Scripts
 
-- Lista de scripts con descripción funcional y propósito.
+    pdm run flask scan-directories # Escanea /data y crea los índices de búsqueda
 - Planeado: descarga directa de cada script y documentación adicional.
 
 ### 📖 Glosario Técnico
@@ -43,7 +45,7 @@ El objetivo principal es proporcionar una **plataforma centralizada** donde pued
 - Archivo JSON con términos clave del ámbito técnico y de seguridad.
 - En continuo crecimiento a medida que se avanza en el estudio.
 
-### 🔍 Buscador Global
+    pdm run python app.py
 
 - Motor de búsqueda con **Whoosh** que indexa todo el contenido del directorio `/data`.
 - Soporte para búsqueda por palabra, frase o términos múltiples.
@@ -58,6 +60,7 @@ El objetivo principal es proporcionar una **plataforma centralizada** donde pued
 ```plaintext
 hacker-panel/
 ├── app.py
+## Próximamente
 ├── templates/            ← Plantillas HTML (Jinja2)
 ├── static/               ← Estilos y scripts JS (Tailwind, FullCalendar)
 ├── data/                 ← Contenido de aprendizaje (writeups, scripts, glosario...)
@@ -97,82 +100,191 @@ Imagina que eres un estudiante de ciberseguridad que está aprendiendo sobre red
 4.  Agregar términos clave al glosario, como "SYN flood" o "ARP spoofing".
 5.  Utilizar el buscador para encontrar rápidamente información sobre un concepto específico.
 
-## 📦 Instalación
 
-1.  Clona el repositorio:
+## 📦 Instalación y Entornos
+# 😧 Hacker Panel
 
+**Hacker Panel** es una herramienta de productividad y gestión del conocimiento diseñada para estudiantes de ciberseguridad, desarrolladores autodidactas y profesionales junior. Nace como una solución personal para organizar y optimizar el estudio en áreas como redes, hacking ético, programación y fundamentos técnicos. Con Hacker Panel, puedes gestionar tus CTF write-ups, organizar tus recursos de aprendizaje y crear un glosario personalizado, todo en un solo lugar.
+
+Este proyecto está construido con **Flask**, usa archivos `.md` como fuente principal de conocimiento y permite integrarse fácilmente en flujos de trabajo autodidactas. Está publicado bajo **Licencia MIT**, por lo que puedes usarlo, modificarlo y adaptarlo libremente.
+
+---
+
+## 🎯 Resumen rápido de cambios recientes (auditado)
+
+He escaneado el estado del repositorio y verificado los cambios más relevantes introducidos recientemente. A continuación encontrarás un resumen accionable para colaboradores:
+
+- pyproject.toml: migración y declaración completa de dependencias (PDM).
+- pdm.lock: archivo de lock grande generado por PDM (graph de dependencias completo).
+- static/css/accessibility.css: nuevas reglas CSS enfocadas en accesibilidad (focus, contraste, skip links, etc.).
+- static/js/accessibility.js: script con mejoras de accesibilidad (gestión de foco, aria, anuncios para lectores de pantalla, handlers de Escape, etc.).
+- src/hacker_panel/__init__.py: marcador de paquete (boilerplate).
+- tests/__init__.py: marcador de paquete para tests.
+- cert.pem y key.pem: certificados/clave privada detectados en el repositorio (ver sección de seguridad abajo).
+
+Si necesitas la lista de cambios con status git exacto, ejecuta en tu máquina:
+
+```bash
+git status --porcelain
+git diff --name-status main..HEAD
+```
+
+---
+
+## ⚙️ Instalación y Entornos (actualizado)
+
+Puedes usar **Hacker Panel** con dos flujos de trabajo según tu preferencia:
+
+### Opción 1: Usando PDM (recomendado)
+
+1. Clona el repositorio:
     ```bash
-    git clone <https://github.com/guizafj/hacker-panel.git>
+    git clone https://github.com/guizafj/hacker-panel.git
     cd hacker-panel
     ```
-
-2.  Crea un entorno virtual e instala las dependencias:
-
+2. Instala PDM (si no lo tienes):
     ```bash
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
+    pip install -U pdm
     ```
-
-3.  Crea los directorios `data` e `instance` en la raíz del proyecto.
-
+3. Instala las dependencias y crea el entorno:
+    ```bash
+    pdm install
+    ```
+4. Crea los directorios necesarios (si aún no existen):
     ```bash
     mkdir -p data/writeups data/scripts data/theory whoosh_index instance
     ```
-
-4.  Ejecuta la aplicación para inicializar la base de datos:
-
+5. Inicializa la base de datos (ejecuta y detén tras la primera ejecución):
     ```bash
-    flask --app app run  # Ejecuta una vez para crear `hacker-panel.db`
-    Ctrl + C             # Detén la aplicación
+    pdm run flask --app app run
+    # Detén la app con Ctrl+C tras la primera ejecución
+    ```
+6. Escanea los directorios y crea los índices de búsqueda:
+    ```bash
+    pdm run flask scan-directories
+    ```
+7. Inicia la aplicación:
+    ```bash
+    pdm run python app.py
     ```
 
-5.  Ejecuta el comando para escanear los directorios y crear los índices de búsqueda:
+### Opción 2: Usando venv + pip (compatibilidad)
 
+1. Crea un entorno virtual e instala las dependencias:
     ```bash
-    flask scan-directories # Escanea /data y crea los índices de búsqueda
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install --upgrade pip
+    pip install -r requirements.txt
     ```
-
-## Uso
-
-1.  Inicia la aplicación:
-
+2. Crea los directorios necesarios:
+    ```bash
+    mkdir -p data/writeups data/scripts data/theory whoosh_index instance
+    ```
+3. Inicializa la base de datos (ejecuta y detén tras la primera ejecución):
+    ```bash
+    flask --app app run
+    # Detén la app con Ctrl+C tras la primera ejecución
+    ```
+4. Escanea los directorios y crea los índices de búsqueda:
+    ```bash
+    flask scan-directories
+    ```
+5. Inicia la aplicación:
     ```bash
     python app.py
     ```
 
-2.  Accede al "Hacker Panel" en tu navegador.
-    Accede desde: http://127.0.0.1:5000
+---
 
-3.  Utiliza las diferentes funcionalidades para organizar tu aprendizaje, realizar un seguimiento de tu progreso y acceder a información relevante.
+### 🔄 Sincronización de dependencias (PDM ↔ pip)
 
-## Próximamente
+El archivo principal de dependencias es `pyproject.toml` (usado por PDM). Flujo recomendado para mantener compatibilidad con usuarios que usan `pip`/`venv`:
 
-*   Implementación del estado de los checks para un seguimiento más claro del progreso.
-*   Integración con mi sitio web personal: [www.dguiza.dev](www.dguiza.dev) (backend en Django).
+1. Gestiona paquetes y actualizaciones con PDM.
+2. Cuando tengas un estado listo para compartir, exporta a `requirements.txt`:
+
+```bash
+pdm export --without-hashes -o requirements.txt
+```
+
+3. Comprueba en CI que `requirements.txt` esté sincronizado (por ejemplo, añadiendo un job que ejecute el comando anterior y falle si hay diferencias).
+
+Recomendación sobre `pdm.lock`: mantener `pdm.lock` en el repositorio es útil para reproducibilidad. Sin embargo, el archivo puede crecer mucho. Opciones:
+
+- Mantener `pdm.lock` en el repo (recomendado para reproducibilidad) y revisar tamaño periódicamente.
+- Si el repo crece demasiado, mover `pdm.lock` a Git LFS o generar artefactos en CI.
+
+---
+
+## 🔐 Notas de seguridad (importante)
+
+Durante la revisión encontré archivos de certificado/clave (`cert.pem` y `key.pem`) en la raíz del repositorio. Nunca dejes claves privadas comprometidas en el control de versiones público. Recomendaciones inmediatas:
+
+1. Si esos archivos contienen claves privadas en uso, dales de baja (rotación/invalidación) inmediatamente y crea nuevas credenciales.
+2. Elimina las claves del repositorio y del historial Git (no solo `rm`):
+
+```bash
+# Eliminar del índice y añadir a .gitignore
+git rm --cached cert.pem key.pem
+echo "cert.pem" >> .gitignore
+echo "key.pem" >> .gitignore
+
+# Para limpiar el historial (opcional y con precaución): usa la herramienta adecuada, por ejemplo BFG o git filter-repo
+# bfg --delete-files key.pem
+# ó
+# git filter-repo --path key.pem --invert-paths
+```
+
+3. Mantén secretos fuera del repo: usa variables de entorno, servicios de secretos (HashiCorp Vault, GitHub Secrets, AWS Secrets Manager) o archivos en `instance/` que se excluyan del control de versiones.
+
+Si quieres, puedo ayudarte a generar los pasos concretos para eliminar esas claves del historial con `git filter-repo` o `bfg`.
+
+---
+
+## 📝 Cambios funcionales (resumen técnico)
+
+- Se añadió `static/css/accessibility.css` y `static/js/accessibility.js` para mejorar accesibilidad (focus, roles ARIA, live regions, gestión de modales y dropdowns).
+- `pyproject.toml` actualizado con lista extensa de dependencias y `pdm` como backend de build.
+- `pdm.lock` generado y añadido (lock completo de dependencias).
+
+Si quieres que genere un CHANGELOG o un PR con estos cambios --y notas de retrocompatibilidad para desarrolladores-- puedo prepararlo.
+
+---
+
+## ✅ Comprobaciones rápidas que puedes ejecutar ahora
+
+```bash
+# Ver archivos modificados
+git status --short
+
+# Ver diferencias respecto a main (lista de nombres)
+git diff --name-only main..HEAD
+
+# Exportar requisitos (PDM → pip)
+pdm export --without-hashes -o requirements.txt
+
+# (Opcional) Comprobar que README actualizado está limpio
+git add README.md && git commit -m "docs: actualizar README con resumen de cambios y notas de seguridad" || true
+```
+
+---
 
 ## 🤝 Contribuciones
 
-Este proyecto está abierto a mejoras, correcciones y nuevas funcionalidades. Si tienes una idea que se alinea con el propósito del proyecto, ¡tu contribución es bienvenida! Puedes contribuir de las siguientes maneras:
-
-*   Implementando nuevas funcionalidades.
-*   Corrigiendo errores existentes.
-*   Mejorando la documentación.
-*   Proponiendo nuevas ideas y mejoras.
+Este proyecto está abierto a mejoras. Si encuentras alguna vulnerabilidad, problema con las dependencias o quieres mejorar la accesibilidad, por favor abre un issue o PR.
 
 Para contribuir:
 
-1.  Haz un fork del repositorio.
-2.  Crea tu rama (git checkout -b feature/mi-mejora).
-3.  Haz commit de tus cambios.
-4.  Abre un pull request explicando tu propuesta.
+1. Haz un fork del repositorio.
+2. Crea tu rama (git checkout -b feature/mi-mejora).
+3. Haz commit de tus cambios.
+4. Abre un pull request explicando tu propuesta.
 
-## 📜 Licencia
+## � Licencia
 
-Distribuido bajo la licencia MIT. Si te resulta útil, no dudes en usarlo, compartirlo o adaptarlo a tu flujo de trabajo.
+Distribuido bajo la licencia MIT.
 
 ## ✍️ Autor
 
-guizafj
-🌐 Sitio web: [www.dguiza.dev](www.dguiza.dev) — 🐙 GitHub: [https://github.com/guizafj](https://github.com/guizafj)
-Creador y mantenedor de Hacker Panel. Enfocado en backend con Python, aprendizaje autodidacta y formación en ciberseguridad.
+guizafj — creador y mantenedor de Hacker Panel.

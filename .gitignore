@@ -61,9 +61,14 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
+
 # Flask stuff:
 instance/
 .webassets-cache
+
+# Ignorar todos los archivos Markdown excepto README.md
+*.md
+!README.md
 
 # Scrapy stuff:
 .scrapy
@@ -220,4 +225,7 @@ migrations/
 node_modules/
 
 # limitar la subida de archivos .pem
-.pem
+*.pem
+# entradas específicas (si se nombran en el repo raíz)
+cert.pem
+key.pem
