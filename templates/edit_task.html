@@ -6,10 +6,10 @@
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-lg shadow">
         <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">Editar Tarea</h2>
-        
+
         <form method="POST" class="space-y-6">
             {{ form.hidden_tag() }}
-            
+
             <div class="space-y-2">
                 {{ form.title.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300") }}
                 {{ form.title(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300") }}
@@ -27,7 +27,7 @@
                     {{ form.start_date(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300") }}
 
                 </div>
-                
+
                 <div class="space-y-2">
                     {{ form.end_date.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300") }}
                     {{ form.end_date(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300") }}
@@ -39,7 +39,7 @@
                     {{ form.type.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300") }}
                     {{ form.type(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300") }}
                 </div>
-                
+
                 <div class="space-y-2">
                     {{ form.color.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300") }}
                     {{ form.color(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300", type="color") }}
@@ -80,7 +80,7 @@
                     {{ form.start_recur.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300") }}
                     {{ form.start_recur(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300") }}
                 </div>
-                
+
                 <div class="space-y-2">
                     {{ form.end_recur.label(class="block text-sm font-medium text-gray-700 dark:text-gray-300") }}
                     {{ form.end_recur(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300") }}
@@ -92,9 +92,9 @@
                         class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
                     Eliminar
                 </button>
-                
+
                 <div class="flex space-x-4">
-                    <a href="{{ url_for('generales.index') }}" 
+                    <a href="{{ url_for('generales.index') }}"
                         class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300">
                         Cancelar
                     </a>

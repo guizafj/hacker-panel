@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
-    
+
     if (!calendarEl) {
         console.error('Calendario no encontrado');
         return;
@@ -79,13 +79,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error('Non-JSON response:', await response.text());
                     throw new TypeError("Response was not JSON");
                 }
-                
+
                 const jsonData = await response.json();
-                
+
                 if (!response.ok) {
                     throw new Error(jsonData.message || 'Error updating event');
                 }
-                
+
                 return jsonData;
             })
             .then(data => {
@@ -134,13 +134,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error('Non-JSON response:', await response.text());
                     throw new TypeError("Response was not JSON");
                 }
-                
+
                 const jsonData = await response.json();
-                
+
                 if (!response.ok) {
                     throw new Error(jsonData.message || 'Error updating event');
                 }
-                
+
                 return jsonData;
             })
             .then(data => {

@@ -1,6 +1,6 @@
 /**
  * Accessibility Enhancements
- * 
+ *
  * This script provides various accessibility improvements for the application:
  * - Better keyboard navigation
  * - ARIA attribute management
@@ -19,16 +19,16 @@ document.addEventListener('DOMContentLoaded', function() {
 function initAccessibility() {
     // Handle focus management
     setupFocusManagement();
-    
+
     // Enhance form accessibility
     enhanceFormAccessibility();
-    
+
     // Improve dropdown accessibility
     setupDropdownAccessibility();
-    
+
     // Set up accessible alerts
     setupAccessibleAlerts();
-    
+
     // Add escape key handler for modals/dialogs
     setupEscapeKeyHandler();
 }
@@ -39,9 +39,9 @@ function initAccessibility() {
 function setupFocusManagement() {
     // Add focus indicators to all interactive elements that don't have them
     const interactiveElements = document.querySelectorAll('a, button, input, select, textarea, [role="button"], [tabindex="0"]');
-    
+
     interactiveElements.forEach(element => {
-        if (!element.classList.contains('focus:outline-none') && 
+        if (!element.classList.contains('focus:outline-none') &&
             !element.classList.contains('focus:ring-2')) {
             element.classList.add('focus:outline-none', 'focus:ring-2', 'focus:ring-blue-500');
         }
@@ -54,21 +54,21 @@ function setupFocusManagement() {
 function enhanceFormAccessibility() {
     // Ensure all form inputs have associated labels
     const inputs = document.querySelectorAll('input, select, textarea');
-    
+
     inputs.forEach(input => {
         // Skip inputs with type="hidden"
         if (input.type === 'hidden') return;
-        
+
         // Check if input has an id
         if (!input.id) {
             // Generate a unique ID
             const uniqueId = 'input-' + Math.random().toString(36).substr(2, 9);
             input.id = uniqueId;
         }
-        
+
         // Check if input has an associated label
         const hasLabel = document.querySelector(`label[for="${input.id}"]`);
-        
+
         if (!hasLabel) {
             // Try to find a parent label
             const parentLabel = input.closest('label');
@@ -76,7 +76,7 @@ function enhanceFormAccessibility() {
                 console.warn(`Input with id "${input.id}" does not have an associated label.`);
             }
         }
-        
+
         // Add required attribute if aria-required is true
         if (input.getAttribute('aria-required') === 'true' && !input.hasAttribute('required')) {
             input.setAttribute('required', 'required');
@@ -89,18 +89,18 @@ function enhanceFormAccessibility() {
  */
 function setupDropdownAccessibility() {
     const dropdowns = document.querySelectorAll('[aria-haspopup="true"]');
-    
+
     dropdowns.forEach(dropdown => {
         const dropdownButton = dropdown;
         const dropdownMenu = document.getElementById(dropdown.getAttribute('aria-controls'));
-        
+
         if (!dropdownMenu) return;
-        
+
         // Ensure aria-expanded is set correctly
         if (!dropdownButton.hasAttribute('aria-expanded')) {
             dropdownButton.setAttribute('aria-expanded', 'false');
         }
-        
+
         // Update aria-expanded when dropdown visibility changes
         const observer = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
@@ -110,7 +110,7 @@ function setupDropdownAccessibility() {
                 }
             });
         });
-        
+
         observer.observe(dropdownMenu, { attributes: true });
     });
 }
@@ -121,13 +121,13 @@ function setupDropdownAccessibility() {
 function setupAccessibleAlerts() {
     // Find all flash messages
     const alerts = document.querySelectorAll('.alert');
-    
+
     alerts.forEach(alert => {
         // Ensure the alert has the appropriate role
         if (!alert.hasAttribute('role')) {
             alert.setAttribute('role', 'alert');
         }
-        
+
         // Ensure it has aria-live for screen readers
         if (!alert.hasAttribute('aria-live')) {
             alert.setAttribute('aria-live', 'assertive');
@@ -147,13 +147,13 @@ function setupEscapeKeyHandler() {
             openDropdowns.forEach(dropdown => {
                 const dropdownId = dropdown.getAttribute('aria-controls');
                 const dropdownMenu = document.getElementById(dropdownId);
-                
+
                 if (dropdownMenu) {
                     dropdown.setAttribute('aria-expanded', 'false');
                     dropdownMenu.classList.add('hidden');
                 }
             });
-            
+
             // Close any open modals/dialogs
             const openModals = document.querySelectorAll('[role="dialog"]:not(.hidden)');
             openModals.forEach(modal => {
@@ -165,14 +165,14 @@ function setupEscapeKeyHandler() {
 
 /**
  * Announce a message to screen readers
- * 
+ *
  * @param {string} message - Message to announce
  * @param {string} politeness - Can be 'assertive' or 'polite'
  */
 function announceToScreenReader(message, politeness = 'assertive') {
     // Create or get the live region
     let liveRegion = document.getElementById('sr-announcer');
-    
+
     if (!liveRegion) {
         liveRegion = document.createElement('div');
         liveRegion.id = 'sr-announcer';
@@ -183,10 +183,10 @@ function announceToScreenReader(message, politeness = 'assertive') {
     } else {
         liveRegion.setAttribute('aria-live', politeness);
     }
-    
+
     // Set the message
     liveRegion.textContent = '';
-    
+
     // Use setTimeout to ensure the DOM update and announcement
     setTimeout(() => {
         liveRegion.textContent = message;

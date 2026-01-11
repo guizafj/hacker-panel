@@ -1,5 +1,6 @@
 from extensions import db
 
+
 class Theory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), nullable=False)  # Título del archivo
@@ -8,5 +9,3 @@ class Theory(db.Model):
 
     def __repr__(self):
         return f"<Theory {self.title}>"
-    
-    

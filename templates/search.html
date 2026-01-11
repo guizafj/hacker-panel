@@ -5,7 +5,7 @@
 
 {% block content %}
     <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">Resultados de búsqueda</h1>
-    
+
     <form action="{{ url_for('data.search') }}" method="GET" class="flex items-center mb-6" role="search" aria-label="Búsqueda en el sitio">
         <label for="search-page-input" class="sr-only">Buscar</label>
         <input type="text" id="search-page-input" name="q" placeholder="Buscar..." value="{{ query }}"

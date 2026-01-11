@@ -10,16 +10,16 @@
             Añadir Término
         </a>
     </div>
-    
+
     {% if glosario %}
         <!-- Filtro de búsqueda -->
         <div class="mb-6">
             <label for="filter-terms" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filtrar términos:</label>
-            <input type="text" id="filter-terms" placeholder="Escribe para filtrar términos..." 
+            <input type="text" id="filter-terms" placeholder="Escribe para filtrar términos..."
                     class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     aria-controls="glossary-list">
         </div>
-        
+
         <!-- Listado de términos -->
         <ul id="glossary-list" class="space-y-4" role="list" aria-label="Lista de términos del glosario">
             {% for term in glosario %}
@@ -31,14 +31,14 @@
                     <p class="text-gray-600 dark:text-gray-400 mt-1">{{ term.description }}</p>
                 </div>
                 <div class="flex space-x-2 self-end md:self-center">
-                    <a href="{{ url_for('data.edit_term', term_id=term.id) }}" 
+                    <a href="{{ url_for('data.edit_term', term_id=term.id) }}"
                         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         aria-label="Editar término {{ term.term }}">
                         Editar
                     </a>
                     <form action="{{ url_for('data.delete_term', term_id=term.id) }}" method="POST" class="inline">
                         {{ form.csrf_token }}
-                        <button type="submit" 
+                        <button type="submit"
                                 class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                                 aria-label="Eliminar término {{ term.term }}"
                                 onclick="return confirm('¿Estás seguro de que deseas eliminar este término?');">
@@ -63,7 +63,7 @@
                 filterInput.addEventListener('input', function() {
                     const filterValue = this.value.toLowerCase();
                     const glossaryItems = document.querySelectorAll('#glossary-list li');
-                    
+
                     glossaryItems.forEach(item => {
                         const termText = item.textContent.toLowerCase();
                         if (termText.includes(filterValue)) {

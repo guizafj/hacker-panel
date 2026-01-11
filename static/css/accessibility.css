@@ -54,7 +54,7 @@ select {
 }
 
 /* Ensure buttons have good padding for touch targets */
-button, 
+button,
 .btn,
 [role="button"] {
   min-height: 44px;
@@ -84,8 +84,8 @@ select:focus {
   * {
     forced-color-adjust: none;
   }
-  
-  button, 
+
+  button,
   [role="button"],
   a {
     border: 1px solid currentColor;

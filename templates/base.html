@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{% block meta_description %}Panel de control de herramientas de ciberseguridad{% endblock %}">
     <title>{% block title %}{% endblock %} - Hacker Panel</title>
-    
+
     <!-- Tailwind CSS -->
     <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
 
@@ -19,7 +19,7 @@
 
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    
+
     <!-- FullCalendar JS (solo CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.8/index.global.min.js"></script>
@@ -73,7 +73,7 @@
             </div>
         </nav>
     </header>
-    
+
     <!-- Contenedor principal -->
     <div class="container mx-auto max-w-4xl px-4 py-8 lg:max-w-[1080px]">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -87,12 +87,12 @@
                 </div>
             {% endif %}
         {% endwith %}
-        
+
         <main id="main-content" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6" tabindex="-1">
             {% block content %}{% endblock %}
         </main>
     </div>
-    
+
     <footer class="bg-gray-800 text-white py-6 mt-8">
         <div class="container mx-auto max-w-4xl px-4">
             <div class="flex flex-col md:flex-row justify-between">
@@ -111,7 +111,7 @@
             </div>
         </div>
     </footer>
-    
+
     {% block scripts %}
     <script src="{{ url_for('static', filename='js/script-calendar.js') }}"></script>
     <script src="{{ url_for('static', filename='js/theme-toggle.js') }}"></script>
@@ -151,7 +151,7 @@
                 utilidadesDropdown.addEventListener('keydown', function(e) {
                     const menuItems = Array.from(this.querySelectorAll('[role="menuitem"]'));
                     const currentIndex = menuItems.indexOf(document.activeElement);
-                    
+
                     if (e.key === 'Escape') {
                         utilidadesDropdownButton.setAttribute('aria-expanded', 'false');
                         utilidadesDropdown.classList.add('hidden');
