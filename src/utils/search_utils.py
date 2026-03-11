@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 # Helpers de conexión
 # ---------------------------------------------------------------------------
 
+
 def _get_db_path(app) -> str:
     """Devuelve la ruta al archivo SQLite desde la config de Flask."""
     uri: str = app.config["SQLALCHEMY_DATABASE_URI"]
@@ -43,6 +44,7 @@ def _connect(app) -> sqlite3.Connection:
 # ---------------------------------------------------------------------------
 # Creación del esquema FTS5
 # ---------------------------------------------------------------------------
+
 
 def create_fts_tables(app) -> None:
     """
@@ -76,9 +78,16 @@ def create_fts_tables(app) -> None:
 # Operaciones de indexación
 # ---------------------------------------------------------------------------
 
-def _upsert_document(conn: sqlite3.Connection, doc_id: str, title: str,
-                     content: str, model_type: str, object_id: int,
-                     category: str) -> None:
+
+def _upsert_document(
+    conn: sqlite3.Connection,
+    doc_id: str,
+    title: str,
+    content: str,
+    model_type: str,
+    object_id: int,
+    category: str,
+) -> None:
     """Inserta o reemplaza un documento en el índice FTS5."""
     # FTS5 no tiene UPSERT nativo: borrar + insertar
     conn.execute("DELETE FROM fts_documents WHERE doc_id = ?", (doc_id,))
@@ -86,7 +95,8 @@ def _upsert_document(conn: sqlite3.Connection, doc_id: str, title: str,
         "INSERT INTO fts_documents (doc_id, title, content) VALUES (?, ?, ?)",
         (doc_id, title, content),
     )
-    conn.execute("""
+    conn.execute(
+        """
         INSERT INTO fts_documents_meta (doc_id, model_type, object_id, category, indexed_at)
         VALUES (?, ?, ?, ?, ?)
         ON CONFLICT(doc_id) DO UPDATE SET
@@ -94,7 +104,9 @@ def _upsert_document(conn: sqlite3.Connection, doc_id: str, title: str,
             object_id  = excluded.object_id,
             category   = excluded.category,
             indexed_at = excluded.indexed_at
-    """, (doc_id, model_type, object_id, category or "", datetime.utcnow().isoformat()))
+    """,
+        (doc_id, model_type, object_id, category or "", datetime.utcnow().isoformat()),
+    )
 
 
 def _compute_hash(text: str) -> str:
@@ -104,6 +116,7 @@ def _compute_hash(text: str) -> str:
 # ---------------------------------------------------------------------------
 # Indexación incremental de archivos .md / .py
 # ---------------------------------------------------------------------------
+
 
 def index_file_entry(app, entry, model_type: str) -> bool:
     """
@@ -201,6 +214,7 @@ def remove_from_index(app, model_type: str, object_id: int) -> None:
 # Búsqueda
 # ---------------------------------------------------------------------------
 
+
 def search_fts(app, query: str, limit: int = 20) -> list[dict]:
     """
     Búsqueda FTS5 con expansión de sinónimos y snippets resaltados.
@@ -239,7 +253,8 @@ def search_fts(app, query: str, limit: int = 20) -> list[dict]:
 
     try:
         with _connect(app) as conn:
-            rows = conn.execute("""
+            rows = conn.execute(
+                """
                 SELECT
                     m.doc_id,
                     m.model_type,
@@ -253,7 +268,9 @@ def search_fts(app, query: str, limit: int = 20) -> list[dict]:
                 WHERE fts_documents MATCH ?
                 ORDER BY rank
                 LIMIT ?
-            """, (fts_query, limit)).fetchall()
+            """,
+                (fts_query, limit),
+            ).fetchall()
 
     except sqlite3.OperationalError as e:
         logger.error(f"Error en búsqueda FTS5 (query='{fts_query}'): {e}")
@@ -261,11 +278,11 @@ def search_fts(app, query: str, limit: int = 20) -> list[dict]:
 
     return [
         {
-            "title":      row["title"],
-            "category":   row["category"],
+            "title": row["title"],
+            "category": row["category"],
             "model_type": row["model_type"],
-            "object_id":  row["object_id"],
-            "snippet":    row["snippet"],
+            "object_id": row["object_id"],
+            "snippet": row["snippet"],
         }
         for row in rows
     ]
@@ -284,10 +301,10 @@ def resolve_search_objects(results: list[dict]) -> list[dict]:
     from src.models.checklist import Objective
 
     model_map = {
-        "theory":    Theory,
-        "writeup":   WriteUps,
-        "script":    Scripts,
-        "glossary":  Term,
+        "theory": Theory,
+        "writeup": WriteUps,
+        "script": Scripts,
+        "glossary": Term,
         "checklist": Objective,
     }
 
@@ -306,6 +323,7 @@ def resolve_search_objects(results: list[dict]) -> list[dict]:
 # ---------------------------------------------------------------------------
 # Poblado completo (rebuild-index)
 # ---------------------------------------------------------------------------
+
 
 def populate_fts_index(app) -> dict[str, int]:
     """
@@ -332,9 +350,9 @@ def populate_fts_index(app) -> dict[str, int]:
 
     # Archivos .md y .py — indexación incremental por hash
     for model_cls, model_type, key in [
-        (Theory,   "theory",  "theory"),
+        (Theory, "theory", "theory"),
         (WriteUps, "writeup", "writeup"),
-        (Scripts,  "script",  "script"),
+        (Scripts, "script", "script"),
     ]:
         for entry in model_cls.query.all():
             if index_file_entry(app, entry, model_type):
@@ -357,6 +375,7 @@ def populate_fts_index(app) -> dict[str, int]:
 # ---------------------------------------------------------------------------
 # Inicialización
 # ---------------------------------------------------------------------------
+
 
 def initialize_search_index(app) -> None:
     """

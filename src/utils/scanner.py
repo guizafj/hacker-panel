@@ -22,9 +22,9 @@ def scan_directory(app, directory: str, model, file_extension: str) -> dict[str,
         {"added": N, "updated": N, "removed": N}
     """
     model_type_map = {
-        Theory:   "theory",
+        Theory: "theory",
         WriteUps: "writeup",
-        Scripts:  "script",
+        Scripts: "script",
     }
     model_type = model_type_map[model]
     counts = {"added": 0, "updated": 0, "removed": 0}
@@ -94,9 +94,9 @@ def scan_all(app) -> None:
     """
     base_dir = "data"
     directories = {
-        "theory":    (Theory,   ".md"),
+        "theory": (Theory, ".md"),
         "write_ups": (WriteUps, ".md"),
-        "scripts":   (Scripts,  ".py"),
+        "scripts": (Scripts, ".py"),
     }
 
     total = {"added": 0, "updated": 0, "removed": 0}

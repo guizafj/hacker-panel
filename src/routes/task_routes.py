@@ -64,6 +64,7 @@ def edit_task(task_id):
     task = db.session.get(Task, task_id)
     if task is None:
         from flask import abort
+
         abort(404)
 
     form = TaskForm(obj=task)
@@ -101,6 +102,7 @@ def toggle_complete(task_id):
     task = db.session.get(Task, task_id)
     if task is None:
         from flask import abort
+
         abort(404)
 
     form = TaskForm()
@@ -118,6 +120,7 @@ def delete_task(task_id):
     task = db.session.get(Task, task_id)
     if task is None:
         from flask import abort
+
         abort(404)
 
     try:
@@ -219,7 +222,9 @@ def api_pending_tasks():
 def update_task(task_id):
     try:
         if not request.is_json:
-            return jsonify({"status": "error", "message": "Content-Type must be application/json"}), 400
+            return jsonify(
+                {"status": "error", "message": "Content-Type must be application/json"}
+            ), 400
 
         data = request.get_json()
         current_app.logger.info(f"Received data for task {task_id}: {data}")
@@ -232,28 +237,36 @@ def update_task(task_id):
             try:
                 task.start_date = isoparse(data["start"])
             except Exception as e:
-                return jsonify({"status": "error", "message": f"Invalid start date: {str(e)}"}), 400
+                return jsonify(
+                    {"status": "error", "message": f"Invalid start date: {str(e)}"}
+                ), 400
 
         if "end" in data:
             try:
                 task.end_date = isoparse(data["end"]) if data["end"] else None
             except Exception as e:
-                return jsonify({"status": "error", "message": f"Invalid end date: {str(e)}"}), 400
+                return jsonify(
+                    {"status": "error", "message": f"Invalid end date: {str(e)}"}
+                ), 400
 
         db.session.commit()
 
-        return jsonify({
-            "status": "success",
-            "data": {
-                "id": task.id,
-                "start": task.start_date.isoformat() if task.start_date else None,
-                "end": task.end_date.isoformat() if task.end_date else None,
-            },
-        }), 200
+        return jsonify(
+            {
+                "status": "success",
+                "data": {
+                    "id": task.id,
+                    "start": task.start_date.isoformat() if task.start_date else None,
+                    "end": task.end_date.isoformat() if task.end_date else None,
+                },
+            }
+        ), 200
 
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Error updating task {task_id}: {str(e)}", exc_info=True)
+        current_app.logger.error(
+            f"Error updating task {task_id}: {str(e)}", exc_info=True
+        )
         return jsonify({"status": "error", "message": str(e)}), 400
 
 
@@ -262,6 +275,7 @@ def toggle_task(task_id):
     task = db.session.get(Task, task_id)
     if task is None:
         from flask import abort
+
         abort(404)
 
     task.completed = not task.completed

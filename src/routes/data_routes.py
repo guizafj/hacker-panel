@@ -39,6 +39,7 @@ from extensions import db
 # Helpers de imágenes
 # ---------------------------------------------------------------------------
 
+
 def find_image_intelligently(img_dir, filename):
     if os.path.exists(os.path.join(img_dir, filename)):
         return filename
@@ -61,7 +62,9 @@ def find_image_intelligently(img_dir, filename):
     if match:
         num_part = match.group(1) or ""
         for file in os.listdir(img_dir):
-            if file.lower().startswith(f"image-{num_part}") and file.lower().endswith(".png"):
+            if file.lower().startswith(f"image-{num_part}") and file.lower().endswith(
+                ".png"
+            ):
                 return file
     return None
 
@@ -72,6 +75,7 @@ data_bp = Blueprint("data", __name__)
 # ---------------------------------------------------------------------------
 # Renderer Markdown personalizado
 # ---------------------------------------------------------------------------
+
 
 class MyRenderer(mistune.HTMLRenderer):
     def __init__(self, obj):
@@ -102,20 +106,24 @@ class MyRenderer(mistune.HTMLRenderer):
 
             if src and src.startswith("obsidian:"):
                 import base64
+
                 try:
-                    filename = base64.b64decode(src[len("obsidian:"):]).decode("utf-8")
+                    filename = base64.b64decode(src[len("obsidian:") :]).decode("utf-8")
                 except Exception as e:
                     current_app.logger.error(f"Error decodificando Obsidian img: {e}")
 
             elif src.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".webp")):
                 filename = src.strip()
-                current_app.logger.info(f"Detectado enlace directo a imagen: {filename}")
+                current_app.logger.info(
+                    f"Detectado enlace directo a imagen: {filename}"
+                )
 
             elif src.startswith("alt "):
                 alt_text = src[4:].strip()
                 image_pattern = re.search(
                     r"(Pasted image \d+\.png|image-\d+\.png|image\d*\.png|.*\.(png|jpg|jpeg|gif|webp))",
-                    alt_text, re.IGNORECASE,
+                    alt_text,
+                    re.IGNORECASE,
                 )
                 if image_pattern:
                     filename = image_pattern.group(1)
@@ -129,17 +137,25 @@ class MyRenderer(mistune.HTMLRenderer):
             matched = find_image_intelligently(img_dir, filename)
 
             if matched:
-                image_url = url_for("data.view_image", base_dir=base_dir,
-                                    category=category, filename=matched)
+                image_url = url_for(
+                    "data.view_image",
+                    base_dir=base_dir,
+                    category=category,
+                    filename=matched,
+                )
                 current_app.logger.info(f"URL de imagen generada: {image_url}")
-                return (f'<img src="{image_url}" alt="{alt}" title="{title}" '
-                        f'class="markdown-image" loading="lazy" />')
+                return (
+                    f'<img src="{image_url}" alt="{alt}" title="{title}" '
+                    f'class="markdown-image" loading="lazy" />'
+                )
             else:
                 current_app.logger.warning(f"Imagen no encontrada: {filename}")
                 return f'<img src="{src}" alt="{alt}" title="{title}" />'
 
         except Exception as e:
-            current_app.logger.error(f"Error al renderizar imagen {src}: {e}", exc_info=True)
+            current_app.logger.error(
+                f"Error al renderizar imagen {src}: {e}", exc_info=True
+            )
             return f'<img src="{src}" alt="{alt}" title="{title}" />'
 
     def block_code(self, code, lang=None, info=None):
@@ -148,7 +164,9 @@ class MyRenderer(mistune.HTMLRenderer):
             formatter = HtmlFormatter(cssclass="codehilite")
             return highlight(code, lexer, formatter)
         except Exception as e:
-            current_app.logger.error(f"Error resaltando código (lang={lang}): {e}", exc_info=True)
+            current_app.logger.error(
+                f"Error resaltando código (lang={lang}): {e}", exc_info=True
+            )
             return f"<pre><code>{mistune.escape(code)}</code></pre>"
 
 
@@ -157,6 +175,7 @@ def preprocess_markdown(content):
 
     def obsidian_to_markdown(match):
         import base64
+
         filename = match.group(1).strip()
         encoded = base64.b64encode(filename.encode("utf-8")).decode("utf-8")
         return f"![{filename}](obsidian:{encoded})"
@@ -164,7 +183,9 @@ def preprocess_markdown(content):
     processed = re.sub(obsidian_pattern, obsidian_to_markdown, content)
     processed = re.sub(r" {2,}$", "  \n", processed, flags=re.MULTILINE)
     processed = re.sub(r"([^\n])\n([-*+]|\d+\.)", r"\1\n\n\2", processed)
-    current_app.logger.info("Procesando enlaces de imágenes Obsidian y mejorando formato")
+    current_app.logger.info(
+        "Procesando enlaces de imágenes Obsidian y mejorando formato"
+    )
     return processed
 
 
@@ -180,6 +201,7 @@ def _build_markdown(obj):
 # ---------------------------------------------------------------------------
 # Imágenes
 # ---------------------------------------------------------------------------
+
 
 @data_bp.route("/view_image/<base_dir>/<category>/<path:filename>")
 def view_image(base_dir, category, filename):
@@ -206,13 +228,16 @@ def view_image(base_dir, category, filename):
         return "Imagen no encontrada", 404
 
     except Exception as e:
-        current_app.logger.error(f"Error sirviendo imagen {filename}: {e}", exc_info=True)
+        current_app.logger.error(
+            f"Error sirviendo imagen {filename}: {e}", exc_info=True
+        )
         return "Error al cargar la imagen", 500
 
 
 # ---------------------------------------------------------------------------
 # Búsqueda — ahora usa FTS5
 # ---------------------------------------------------------------------------
+
 
 @data_bp.route("/search")
 def search():
@@ -232,6 +257,7 @@ def search():
 # ---------------------------------------------------------------------------
 # Glosario
 # ---------------------------------------------------------------------------
+
 
 @data_bp.route("/glosario")
 def glosario():
@@ -272,6 +298,7 @@ def edit_term(term_id):
     term = db.session.get(Term, term_id)
     if term is None:
         from flask import abort
+
         abort(404)
     form = GlossaryForm(obj=term)
 
@@ -293,6 +320,7 @@ def delete_term(term_id):
     term = db.session.get(Term, term_id)
     if term is None:
         from flask import abort
+
         abort(404)
     try:
         remove_from_index(current_app._get_current_object(), "glossary", term_id)
@@ -309,6 +337,7 @@ def delete_term(term_id):
 # ---------------------------------------------------------------------------
 # Checklist
 # ---------------------------------------------------------------------------
+
 
 @data_bp.route("/checklist")
 def checklist():
@@ -332,7 +361,9 @@ def add_objective():
             )
             db.session.add(objective)
             db.session.commit()
-            index_structured_entry(current_app._get_current_object(), objective, "checklist")
+            index_structured_entry(
+                current_app._get_current_object(), objective, "checklist"
+            )
             flash("Objetivo agregado de manera exitosa", "success")
             return redirect(url_for("data.checklist"))
         except Exception as e:
@@ -352,6 +383,7 @@ def edit_objective(objective_id):
     objective = db.session.get(Objective, objective_id)
     if objective is None:
         from flask import abort
+
         abort(404)
     form = ChecklistForm(obj=objective)
 
@@ -363,7 +395,9 @@ def edit_objective(objective_id):
         objective.status = form.status.data
         objective.color = form.color.data
         db.session.commit()
-        index_structured_entry(current_app._get_current_object(), objective, "checklist")
+        index_structured_entry(
+            current_app._get_current_object(), objective, "checklist"
+        )
         flash("Objetivo actualizado exitosamente!", "success")
         return redirect(url_for("data.checklist"))
 
@@ -375,6 +409,7 @@ def delete_objective(objective_id):
     objective = db.session.get(Objective, objective_id)
     if objective is None:
         from flask import abort
+
         abort(404)
     try:
         remove_from_index(current_app._get_current_object(), "checklist", objective_id)
@@ -384,13 +419,16 @@ def delete_objective(objective_id):
     except Exception as e:
         db.session.rollback()
         flash("Error al eliminar el objetivo.", "error")
-        current_app.logger.error(f"Error borrando objetivo {objective_id}: {e}", exc_info=True)
+        current_app.logger.error(
+            f"Error borrando objetivo {objective_id}: {e}", exc_info=True
+        )
     return redirect(url_for("data.checklist"))
 
 
 # ---------------------------------------------------------------------------
 # Scripts
 # ---------------------------------------------------------------------------
+
 
 @data_bp.route("/scripts")
 def list_scripts():
@@ -403,13 +441,16 @@ def view_script(script_id):
     script = db.session.get(Scripts, script_id)
     if script is None:
         from flask import abort
+
         abort(404)
     try:
         content_md = preprocess_markdown(
             open(script.file_path, "r", encoding="utf-8").read()
         )
         content_html = _build_markdown(script)(content_md)
-        return render_template("scripts_detail.html", title=script.title, content=content_html)
+        return render_template(
+            "scripts_detail.html", title=script.title, content=content_html
+        )
     except FileNotFoundError:
         return "Archivo no encontrado", 404
 
@@ -417,6 +458,7 @@ def view_script(script_id):
 # ---------------------------------------------------------------------------
 # Write-ups
 # ---------------------------------------------------------------------------
+
 
 @data_bp.route("/writeups")
 def list_writeups():
@@ -429,13 +471,16 @@ def view_writeup(writeup_id):
     writeup = db.session.get(WriteUps, writeup_id)
     if writeup is None:
         from flask import abort
+
         abort(404)
     try:
         content_md = preprocess_markdown(
             open(writeup.file_path, "r", encoding="utf-8").read()
         )
         content_html = _build_markdown(writeup)(content_md)
-        return render_template("writeups_detail.html", title=writeup.title, content=content_html)
+        return render_template(
+            "writeups_detail.html", title=writeup.title, content=content_html
+        )
     except FileNotFoundError:
         return "Archivo no encontrado", 404
 
@@ -443,6 +488,7 @@ def view_writeup(writeup_id):
 # ---------------------------------------------------------------------------
 # Theory
 # ---------------------------------------------------------------------------
+
 
 @data_bp.route("/theory")
 def list_data():
@@ -457,6 +503,7 @@ def view_theory(theory_id):
     theory = db.session.get(Theory, theory_id)
     if theory is None:
         from flask import abort
+
         abort(404)
     try:
         content_md = preprocess_markdown(

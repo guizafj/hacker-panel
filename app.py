@@ -96,6 +96,7 @@ if not app.logger.handlers:
 # Comandos CLI
 # ---------------------------------------------------------------------------
 
+
 @click.command("scan-directories")
 @with_appcontext
 def scan_directories_command():
@@ -106,6 +107,7 @@ def scan_directories_command():
     Uso: flask scan-directories
     """
     from src.utils.scanner import scan_all
+
     scan_all(app)
     click.echo("Escaneo completado.")
 
@@ -120,6 +122,7 @@ def rebuild_index_command():
     Uso: flask rebuild-index
     """
     from src.utils.search_utils import populate_fts_index
+
     click.echo("Reconstruyendo índice FTS5...")
     counts = populate_fts_index(app)
     click.echo(
