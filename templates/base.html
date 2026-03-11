@@ -20,12 +20,8 @@
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
-    <!-- FullCalendar JS (solo CDN) -->
-    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/index.global.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.8/index.global.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.8/index.global.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.8/index.global.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/list@6.1.8/index.global.min.js"></script>
+    <!-- FullCalendar CSS/JS: solo se carga en páginas que lo necesiten via extra_head -->
+    {% block extra_head %}{% endblock %}
 
     {% block extra_css %}{% endblock %}
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -113,7 +109,6 @@
     </footer>
 
     {% block scripts %}
-    <script src="{{ url_for('static', filename='js/script-calendar.js') }}"></script>
     <script src="{{ url_for('static', filename='js/theme-toggle.js') }}"></script>
     <script src="{{ url_for('static', filename='js/accessibility.js') }}"></script>
     <script>
@@ -128,7 +123,6 @@
                     utilidadesDropdown.classList.toggle('hidden');
                 });
 
-                // Keyboard navigation for dropdown
                 utilidadesDropdownButton.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
                         e.preventDefault();
@@ -139,7 +133,6 @@
                     }
                 });
 
-                // Close dropdown when clicking outside
                 document.addEventListener('click', function(event) {
                     if (!utilidadesDropdownButton.contains(event.target) && !utilidadesDropdown.contains(event.target)) {
                         utilidadesDropdownButton.setAttribute('aria-expanded', 'false');
@@ -147,7 +140,6 @@
                     }
                 });
 
-                // Handle keyboard navigation within dropdown
                 utilidadesDropdown.addEventListener('keydown', function(e) {
                     const menuItems = Array.from(this.querySelectorAll('[role="menuitem"]'));
                     const currentIndex = menuItems.indexOf(document.activeElement);

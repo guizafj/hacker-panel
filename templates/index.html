@@ -3,6 +3,15 @@
 {% block title %}Panel de Control{% endblock %}
 {% block meta_description %}Panel de control principal con calendario de tareas y actividades{% endblock %}
 
+{# FullCalendar CDN: solo se carga en esta página #}
+{% block extra_head %}
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/list@6.1.8/index.global.min.js"></script>
+{% endblock %}
+
 {% block extra_css %}
     <link href="{{ url_for('static', filename='css/calendar.css') }}" rel="stylesheet">
 {% endblock %}
@@ -10,7 +19,105 @@
 {% block content %}
     <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">Panel de Control</h1>
 
-    <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-6">
+    <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-4 sm:p-6">
         <div id="calendar" class="w-full" aria-label="Calendario de actividades"></div>
     </div>
+
+    <!--
+        Modal de detalle de tarea
+        - fixed inset-0: ocupa todo el viewport (no el documento)
+        - overflow-y-auto en el panel interior: scroll si el contenido es largo
+        - p-4: margen en móvil para que no toque los bordes
+    -->
+    <div id="taskModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="taskModalTitle">
+
+        <div class="w-full max-w-md max-h-screen-safe overflow-y-auto
+                    bg-white dark:bg-gray-800
+                    rounded-lg shadow-2xl">
+
+            <!-- Cabecera -->
+            <div class="flex justify-between items-start p-5 border-b border-gray-200 dark:border-gray-700">
+                <h2 id="taskModalTitle"
+                    class="text-lg font-bold text-gray-900 dark:text-gray-100 pr-4 leading-snug">
+                </h2>
+                <button id="taskModalClose"
+                        class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200
+                               focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                        aria-label="Cerrar">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Cuerpo -->
+            <div class="p-5 space-y-4">
+
+                <!-- Descripción (oculta si está vacía) -->
+                <div id="taskModalDescWrapper" class="hidden">
+                    <p class="modal-label text-xs font-semibold uppercase tracking-wide
+                               text-gray-500 dark:text-gray-400 mb-1">
+                        Descripción
+                    </p>
+                    <p id="taskModalDesc"
+                       class="modal-value text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                    </p>
+                </div>
+
+                <!-- Horario -->
+                <div>
+                    <p class="modal-label text-xs font-semibold uppercase tracking-wide
+                               text-gray-500 dark:text-gray-400 mb-1">
+                        Horario
+                    </p>
+                    <p id="taskModalDates"
+                       class="modal-value text-sm text-gray-700 dark:text-gray-300">
+                    </p>
+                </div>
+
+                <!-- Estado -->
+                <div>
+                    <span id="taskModalStatus"
+                          class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                    </span>
+                </div>
+            </div>
+
+            <!-- Pie con acciones -->
+            <div class="px-5 pb-5 flex flex-wrap gap-2">
+                <a id="taskModalEdit"
+                   href="#"
+                   class="btn-edit flex-1 text-center text-white text-sm font-medium
+                          py-2 px-3 rounded-md
+                          bg-blue-600 hover:bg-blue-700
+                          focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    ✏️ Editar
+                </a>
+                <button id="taskModalToggle"
+                        class="btn-toggle flex-1 text-white text-sm font-medium
+                               py-2 px-3 rounded-md
+                               bg-emerald-600 hover:bg-emerald-700
+                               focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    Completar
+                </button>
+                <button id="taskModalDelete"
+                        class="btn-delete flex-1 text-white text-sm font-medium
+                               py-2 px-3 rounded-md
+                               bg-red-600 hover:bg-red-700
+                               focus:outline-none focus:ring-2 focus:ring-red-500">
+                    🗑 Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/script-calendar.js') }}"></script>
 {% endblock %}

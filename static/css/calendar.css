@@ -1,183 +1,416 @@
-/* Estilos personalizados para el calendario */
+/*
+ * calendar.css — Hacker Panel
+ *
+ * Sistema de tokens via CSS custom properties.
+ * Modo oscuro controlado por el selector .dark en <html>
+ * (consistente con darkMode: 'class' en tailwind.config.js)
+ * NO se usa @media (prefers-color-scheme) para evitar conflictos
+ * con theme-toggle.js que gestiona el tema manualmente.
+ */
+
+/* ─────────────────────────────────────────────
+   1. TOKENS DE COLOR
+   ─────────────────────────────────────────────*/
+
+:root {
+  /* Superficie del calendario */
+  --fc-bg:              #ffffff;
+  --fc-bg-alt:          #f9fafb;   /* gray-50 */
+  --fc-border:          #e5e7eb;   /* gray-200 */
+
+  /* Texto */
+  --fc-text:            #1f2937;   /* gray-800 */
+  --fc-text-muted:      #6b7280;   /* gray-500 */
+
+  /* Día actual */
+  --fc-today-bg:        #eff6ff;   /* blue-50 */
+  --fc-today-border:    #3b82f6;   /* blue-500 */
+
+  /* Selección de fechas (selectable) */
+  --fc-select-bg:       rgba(59, 130, 246, 0.15);
+
+  /* Barra de herramientas */
+  --fc-toolbar-btn-bg:       #3b82f6;   /* blue-500 */
+  --fc-toolbar-btn-bg-hover: #2563eb;   /* blue-600 */
+  --fc-toolbar-btn-active:   #1d4ed8;   /* blue-700 */
+  --fc-toolbar-btn-text:     #ffffff;
+
+  /* Título */
+  --fc-title-color:     #3b82f6;   /* blue-500 */
+
+  /* Cabecera de días */
+  --fc-header-bg:       #f3f4f6;   /* gray-100 */
+  --fc-header-text:     #374151;   /* gray-700 */
+
+  /* Vista lista */
+  --fc-list-day-bg:     #e5e7eb;   /* gray-200 */
+  --fc-list-day-text:   #1f2937;   /* gray-800 */
+  --fc-list-event-hover:#f3f4f6;   /* gray-100 */
+
+  /* Background events (bloques de estudio) */
+  --fc-bg-event:        rgba(59, 130, 246, 0.12);
+
+  /* Now indicator */
+  --fc-now-line:        #ef4444;   /* red-500 */
+}
+
+/* Modo oscuro: clase .dark en <html> */
+.dark {
+  --fc-bg:              #1f2937;   /* gray-800 — mismo que el card en base.html */
+  --fc-bg-alt:          #111827;   /* gray-900 */
+  --fc-border:          #374151;   /* gray-700 */
+
+  --fc-text:            #f3f4f6;   /* gray-100 */
+  --fc-text-muted:      #9ca3af;   /* gray-400 */
+
+  --fc-today-bg:        #1e3a5f;   /* azul navy oscuro */
+  --fc-today-border:    #60a5fa;   /* blue-400 */
+
+  --fc-select-bg:       rgba(96, 165, 250, 0.2);
+
+  --fc-toolbar-btn-bg:       #1d4ed8;   /* blue-700 */
+  --fc-toolbar-btn-bg-hover: #2563eb;   /* blue-600 */
+  --fc-toolbar-btn-active:   #1e40af;   /* blue-800 */
+
+  --fc-title-color:     #93c5fd;   /* blue-300 */
+
+  --fc-header-bg:       #111827;   /* gray-900 */
+  --fc-header-text:     #d1d5db;   /* gray-300 */
+
+  --fc-list-day-bg:     #374151;   /* gray-700 */
+  --fc-list-day-text:   #f3f4f6;   /* gray-100 */
+  --fc-list-event-hover:#374151;
+
+  --fc-bg-event:        rgba(96, 165, 250, 0.1);
+
+  --fc-now-line:        #f87171;   /* red-400 */
+}
+
+
+/* ─────────────────────────────────────────────
+   2. CONTENEDOR BASE
+   ─────────────────────────────────────────────*/
+
 .fc {
-    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-family: ui-sans-serif, system-ui, sans-serif,
+               "Apple Color Emoji", "Segoe UI Emoji",
+               "Segoe UI Symbol", "Noto Color Emoji";
+  font-size: 0.875rem;  /* 14px — más compacto en pantallas pequeñas */
+  background-color: var(--fc-bg);
+  color: var(--fc-text);
 }
 
-/* Título de la barra de herramientas */
+/* ─────────────────────────────────────────────
+   3. BARRA DE HERRAMIENTAS
+   ─────────────────────────────────────────────*/
+
 .fc-toolbar-title {
-    font-size: 1.25rem;
-    line-height: 1.75rem;
-    font-weight: 700;
-    color: #3b82f6; /* Azul claro */
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--fc-title-color);
 }
 
-@media (prefers-color-scheme: dark) {
-    .fc-toolbar-title {
-        color: #aed6f1; /* Azul claro con mejor contraste */
-    }
+/* En móvil el título puede ser demasiado grande */
+@media (max-width: 640px) {
+  .fc-toolbar-title { font-size: 0.95rem; }
+  .fc-toolbar.fc-header-toolbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
 }
 
-/* Botones */
-.fc-button {
-    background-color: #3b82f6; /* Azul claro */
-    color: #ffffff; /* Texto blanco */
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
+/* Botones de la toolbar */
+.fc-button,
+.fc-button-primary {
+  background-color: var(--fc-toolbar-btn-bg) !important;
+  border-color:     var(--fc-toolbar-btn-bg) !important;
+  color:            var(--fc-toolbar-btn-text) !important;
+  border-radius:    0.375rem !important;  /* rounded-md */
+  font-weight:      500 !important;
+  padding:          0.35rem 0.75rem !important;
+  transition:       background-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow:       none !important;
 }
 
-.fc-button:hover {
-    background-color: #2563eb; /* Azul más oscuro */
+.fc-button:hover,
+.fc-button-primary:hover {
+  background-color: var(--fc-toolbar-btn-bg-hover) !important;
+  border-color:     var(--fc-toolbar-btn-bg-hover) !important;
 }
 
-@media (prefers-color-scheme: dark) {
-    .fc-button {
-        background-color: #1e40af; /* Azul oscuro */
-    }
-
-    .fc-button:hover {
-        background-color: #3064a5; /* Azul más oscuro */
-    }
+.fc-button:focus,
+.fc-button-primary:focus {
+  outline: 2px solid #3b82f6 !important;
+  outline-offset: 2px !important;
 }
 
-/* Día actual */
-.fc-day-today {
-    background-color: #e0f2fe; /* Azul claro */
-    color: #000000; /* Texto negro */
+.fc-button-active,
+.fc-button-primary:not(:disabled).fc-button-active {
+  background-color: var(--fc-toolbar-btn-active) !important;
+  border-color:     var(--fc-toolbar-btn-active) !important;
 }
 
-@media (prefers-color-scheme: dark) {
-    .fc-day-today {
-        background-color: #374151; /* Gris oscuro */
-        color: #ffffff; /* Texto blanco */
-    }
-}
+/* ─────────────────────────────────────────────
+   4. CABECERA DE COLUMNAS (nombres de días)
+   ─────────────────────────────────────────────*/
 
-/* Estilos para eventos en el calendario */
-.fc-daygrid-event {
-    background-color: #1e3a8a; /* Azul más oscuro para mejor contraste */
-    color: #ffffff; /* Texto blanco */
-    border: 1px solid #1e40af; /* Bordes azules oscuros */
-}
-
-@media (prefers-color-scheme: dark) {
-    .fc-daygrid-event {
-        background-color: #3064a5; /* Azul oscuro */
-        color: #ffffff; /* Texto blanco */
-        border: 1px solid #aed6f1; /* Bordes azules claros */
-    }
-}
-
-/* Estilos para eventos en la vista de semana */
-.fc-timegrid-event {
-    background-color: #1e3a8a; /* Azul más oscuro para mejor contraste */
-    color: #ffffff; /* Texto blanco */
-    border: 1px solid #1e40af; /* Bordes azules oscuros */
-}
-
-@media (prefers-color-scheme: dark) {
-    .fc-timegrid-event {
-        background-color: #3064a5; /* Azul oscuro */
-        color: #ffffff; /* Texto blanco */
-        border: 1px solid #aed6f1; /* Bordes azules claros */
-    }
-}
-
-/* Estilos para eventos en la vista de lista */
-.fc-list-event {
-    background-color: #1e3a8a; /* Azul más oscuro para mejor contraste */
-    color: #ffffff; /* Texto blanco */
-    border: 1px solid #1e40af; /* Bordes azules oscuros */
-}
-
-@media (prefers-color-scheme: dark) {
-    .fc-list-event {
-        background-color: #3064a5; /* Azul oscuro */
-        color: #ffffff; /* Texto blanco */
-        border: 1px solid #aed6f1; /* Bordes azules claros */
-    }
-}
-
-/* Ajustar el contraste de los bordes en hover */
-.fc-daygrid-event:hover, .fc-timegrid-event:hover, .fc-list-event:hover {
-    border-color: #3b82f6; /* Azul claro */
-}
-
-@media (prefers-color-scheme: dark) {
-    .fc-daygrid-event:hover, .fc-timegrid-event:hover, .fc-list-event:hover {
-        border-color: #aed6f1; /* Azul claro con mejor contraste */
-    }
-}
-
-/* Estilos para las líneas de la cuadrícula */
-.fc-scrollgrid th {
-    border: 1px solid #d1d5db; /* Gris claro */
-    color: #374151; /* Texto gris oscuro */
-}
-
-.fc-scrollgrid td {
-    border: 1px solid #d1d5db; /* Gris claro */
-}
-
-@media (prefers-color-scheme: dark) {
-    .fc-scrollgrid th {
-        border: 1px solid #4b5563; /* Gris más oscuro */
-        color: #d1d5db; /* Texto gris claro */
-    }
-
-    .fc-scrollgrid td {
-        border: 1px solid #4b5563; /* Gris más oscuro */
-    }
-}
-
-/* Estilos para los nombres de los días en la vista de mes */
 .fc-col-header-cell {
-    color: #374151; /* Texto gris oscuro */
-    font-weight: 600;
-    padding: 0.5em;
+  background-color: var(--fc-header-bg);
+  color:            var(--fc-header-text);
+  font-weight:      600;
+  padding:          0.5rem 0;
+  border-color:     var(--fc-border) !important;
 }
 
-@media (prefers-color-scheme: dark) {
-    .fc-col-header-cell {
-        color: #d1d5db; /* Texto gris claro */
-    }
+/* ─────────────────────────────────────────────
+   5. CUADRÍCULA Y BORDES
+   ─────────────────────────────────────────────*/
+
+.fc-scrollgrid,
+.fc-scrollgrid th,
+.fc-scrollgrid td,
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border-color: var(--fc-border) !important;
 }
 
-/* Estilos para las fechas en la vista de mes */
+/* Fondo general de celdas */
+.fc-daygrid-day,
+.fc-timegrid-slot {
+  background-color: var(--fc-bg);
+}
+
+/* Filas alternas en timegrid para facilitar lectura */
+.fc-timegrid-slot:nth-child(even) {
+  background-color: var(--fc-bg-alt);
+}
+
+/* ─────────────────────────────────────────────
+   6. DÍA ACTUAL
+   ─────────────────────────────────────────────*/
+
+.fc-day-today {
+  background-color: var(--fc-today-bg) !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  background-color: var(--fc-today-border);
+  color:            #ffffff;
+  border-radius:    9999px;
+  width:            1.75rem;
+  height:           1.75rem;
+  display:          inline-flex;
+  align-items:      center;
+  justify-content:  center;
+  font-weight:      700;
+}
+
+/* ─────────────────────────────────────────────
+   7. NÚMEROS DE DÍA
+   ─────────────────────────────────────────────*/
+
 .fc-daygrid-day-number {
-    color: #374151; /* Texto gris oscuro */
-    padding: 0.5em;
+  color:   var(--fc-text-muted);
+  padding: 0.35rem 0.5rem;
+  font-size: 0.8rem;
 }
 
-@media (prefers-color-scheme: dark) {
-    .fc-daygrid-day-number {
-        color: #d1d5db; /* Texto gris claro */
-    }
-}
+/* ─────────────────────────────────────────────
+   8. ETIQUETAS DE HORA (timegrid)
+   ─────────────────────────────────────────────*/
 
-/* Estilos para las horas en la vista de semana y día */
 .fc-timegrid-slot-label-cushion {
-    color: #374151; /* Texto gris oscuro */
+  color:     var(--fc-text-muted);
+  font-size: 0.75rem;
 }
 
-@media (prefers-color-scheme: dark) {
-    .fc-timegrid-slot-label-cushion {
-        color: #d1d5db; /* Texto gris claro */
-    }
+/* ─────────────────────────────────────────────
+   9. EVENTOS
+   ─────────────────────────────────────────────*/
+
+/* Base para todos los tipos de evento */
+.fc-daygrid-event,
+.fc-timegrid-event,
+.fc-list-event {
+  border-radius: 0.375rem;
+  border-width:  0 !important;
+  border-left:   3px solid rgba(255,255,255,0.4) !important;
+  cursor:        pointer;
+  transition:    filter 0.1s ease, transform 0.1s ease;
 }
 
-/* Estilos para la barra superior en la vista de lista */
-.fc-list-day {
-    background-color: #4b5563; /* Gris más oscuro para mejor contraste */
-    color: #ffffff; /* Texto blanco */
-    padding: 0.5em;
-    font-weight: 600;
+.fc-daygrid-event:hover,
+.fc-timegrid-event .fc-event-main:hover {
+  filter:    brightness(1.1);
+  transform: translateY(-1px);
 }
 
-@media (prefers-color-scheme: dark) {
-    .fc-list-day {
-        background-color: #374151; /* Gris aún más oscuro para el tema oscuro */
-        color: #d1d5db; /* Texto gris claro */
-    }
+/* El color real lo provee la API (backgroundColor / borderColor por tarea) */
+/* Estos son los fallbacks si no hay color definido */
+.fc-daygrid-event    { background-color: #3b82f6; color: #fff; }
+.fc-timegrid-event   { background-color: #3b82f6; color: #fff; }
+
+/* Tareas completadas: más tenues */
+.fc-event[data-completed="true"] {
+  opacity: 0.55;
+}
+
+/* ─────────────────────────────────────────────
+   10. SELECCIÓN DE FECHAS (selectable: true)
+   ─────────────────────────────────────────────*/
+
+.fc-highlight {
+  background-color: var(--fc-select-bg) !important;
+  border:           1px dashed var(--fc-today-border) !important;
+  border-radius:    0.25rem;
+}
+
+/* ─────────────────────────────────────────────
+   11. BACKGROUND EVENTS (bloques de estudio)
+   ─────────────────────────────────────────────*/
+
+.fc-bg-event {
+  background-color: var(--fc-bg-event) !important;
+  border-left:      3px solid var(--fc-today-border) !important;
+  border-radius:    0;
+  opacity:          1 !important;
+}
+
+/* ─────────────────────────────────────────────
+   12. NOW INDICATOR (línea de hora actual)
+   ─────────────────────────────────────────────*/
+
+.fc-timegrid-now-indicator-line {
+  border-color: var(--fc-now-line) !important;
+  border-width: 2px !important;
+}
+
+.fc-timegrid-now-indicator-arrow {
+  border-top-color:    var(--fc-now-line) !important;
+  border-bottom-color: var(--fc-now-line) !important;
+}
+
+/* ─────────────────────────────────────────────
+   13. VISTA DE LISTA
+   ─────────────────────────────────────────────*/
+
+.fc-list {
+  border-color: var(--fc-border) !important;
+}
+
+.fc-list-day-cushion,
+.fc-list-day > td {
+  background-color: var(--fc-list-day-bg) !important;
+  color:            var(--fc-list-day-text) !important;
+  font-weight:      600;
+}
+
+.fc-list-event:hover td {
+  background-color: var(--fc-list-event-hover) !important;
+}
+
+.fc-list-event-dot {
+  border-color: currentColor !important;
+}
+
+.fc-list-empty {
+  background-color: var(--fc-bg);
+  color:            var(--fc-text-muted);
+}
+
+/* ─────────────────────────────────────────────
+   14. EVENTO ARRASTRADO (drag ghost)
+   ─────────────────────────────────────────────*/
+
+.fc-event-dragging {
+  opacity:   0.75 !important;
+  transform: scale(1.02);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25) !important;
+}
+
+/* ─────────────────────────────────────────────
+   15. MODAL DE TAREA — responsive y accesible
+   ─────────────────────────────────────────────*/
+
+#taskModal {
+  /* Garantiza que el modal esté siempre dentro del viewport */
+  align-items:     center;
+  justify-content: center;
+  padding:         1rem;   /* espacio en móvil */
+}
+
+#taskModal > div {
+  width:      100%;
+  max-width:  28rem;       /* 448px */
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  /* Colores coherentes con el card de base.html */
+  background-color: #ffffff;
+  border-radius:    0.5rem;
+  box-shadow:       0 20px 60px rgba(0,0,0,0.3);
+}
+
+/* Dark mode del modal */
+.dark #taskModal > div {
+  background-color: #1f2937;  /* gray-800 */
+  color:            #f3f4f6;
+}
+
+/* Título del modal */
+#taskModalTitle {
+  color: var(--fc-text, #1f2937);
+  word-break: break-word;
+}
+
+.dark #taskModalTitle {
+  color: #f3f4f6;
+}
+
+/* Labels de sección */
+#taskModal .modal-label {
+  font-size:      0.7rem;
+  font-weight:    600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color:          #6b7280;
+  margin-bottom:  0.25rem;
+}
+
+.dark #taskModal .modal-label {
+  color: #9ca3af;
+}
+
+/* Texto de contenido */
+#taskModal .modal-value {
+  color:     #374151;
+  font-size: 0.875rem;
+}
+
+.dark #taskModal .modal-value {
+  color: #d1d5db;
+}
+
+/* Botones del modal — touch targets mínimos de 44px ya garantizados por accessibility.css */
+#taskModal .btn-edit   { background-color: #3b82f6; }
+#taskModal .btn-edit:hover { background-color: #2563eb; }
+
+#taskModal .btn-toggle { background-color: #10b981; }
+#taskModal .btn-toggle:hover { background-color: #059669; }
+
+#taskModal .btn-delete { background-color: #ef4444; }
+#taskModal .btn-delete:hover { background-color: #dc2626; }
+
+/* ─────────────────────────────────────────────
+   16. RESPONSIVE — pantallas pequeñas
+   ─────────────────────────────────────────────*/
+
+@media (max-width: 640px) {
+  /* Ocultar texto de botones secundarios y mostrar solo iconos si se desea */
+  .fc-button { padding: 0.3rem 0.5rem !important; font-size: 0.75rem !important; }
+
+  /* Reducir altura de slots en móvil para ver más horas */
+  .fc-timegrid-slot { height: 1.75rem !important; }
+
+  /* Limitar número de eventos visibles por día en month view */
+  .fc-daygrid-day-events { max-height: 4rem; overflow: hidden; }
 }
