@@ -16,7 +16,6 @@ from extensions import db
 from src.models.task import Task
 from src.forms.task_form import TaskForm
 
-# Creación del Blueprint para la task
 task_bp = Blueprint("task", __name__)
 sanitizer = Sanitizer()
 
@@ -25,7 +24,6 @@ sanitizer = Sanitizer()
 def add_task():
     form = TaskForm()
     if form.validate_on_submit():
-        current_app.logger.info("Formulario validado correctamente.")
         try:
             task = Task(
                 title=form.title.data,
@@ -53,16 +51,21 @@ def add_task():
             flash("Error al crear la tarea.", "error")
             return render_template("add_task.html", form=form)
     else:
-        current_app.logger.info("El formulario no es valido")
         for field, errors in form.errors.items():
             for error in errors:
-                current_app.logger.error(f"Error en el campo {field}: {error}")
+                current_app.logger.warning(f"Error de validación en '{field}': {error}")
     return render_template("add_task.html", form=form)
 
 
 @task_bp.route("/edit/<int:task_id>", methods=["GET", "POST"])
 def edit_task(task_id):
-    task = Task.query.get_or_404(task_id)
+    # FIX: .query.get_or_404() está deprecado en SQLAlchemy 2.x.
+    # Se usa db.session.get() + abort manual, patrón recomendado.
+    task = db.session.get(Task, task_id)
+    if task is None:
+        from flask import abort
+        abort(404)
+
     form = TaskForm(obj=task)
 
     if form.validate_on_submit():
@@ -81,8 +84,10 @@ def edit_task(task_id):
         task.end_recur = form.end_recur.data
 
         current_app.logger.info(
-            f"Task ID: {task_id}, Recurring: {task.recurring}, Days of Week: {task.days_of_week}, Start Recur: {task.start_recur}, End Recur: {task.end_recur}"
-        )  # Add this line
+            f"Task ID: {task_id}, Recurring: {task.recurring}, "
+            f"Days of Week: {task.days_of_week}, "
+            f"Start Recur: {task.start_recur}, End Recur: {task.end_recur}"
+        )
 
         db.session.commit()
         flash("Tarea actualizada exitosamente!", "success")
@@ -93,7 +98,11 @@ def edit_task(task_id):
 
 @task_bp.route("/toggle_complete/<int:task_id>", methods=["POST"])
 def toggle_complete(task_id):
-    task = Task.query.get_or_404(task_id)
+    task = db.session.get(Task, task_id)
+    if task is None:
+        from flask import abort
+        abort(404)
+
     form = TaskForm()
     if form.validate_on_submit():
         task.completed = not task.completed
@@ -106,7 +115,11 @@ def toggle_complete(task_id):
 
 @task_bp.route("/delete/<int:task_id>", methods=["POST"])
 def delete_task(task_id):
-    task = Task.query.get_or_404(task_id)
+    task = db.session.get(Task, task_id)
+    if task is None:
+        from flask import abort
+        abort(404)
+
     try:
         db.session.delete(task)
         db.session.commit()
@@ -118,45 +131,41 @@ def delete_task(task_id):
     return redirect(url_for("generales.index"))
 
 
-# --- API para el Calendario ---
 @task_bp.route("/api/tasks")
 def api_tasks():
     tasks = Task.query.all()
     events = []
+
     for task in tasks:
         try:
             if task.recurring:
                 start_date = task.start_recur or task.start_date
                 end_date = task.end_recur
 
-                if task.days_of_week:  # Verificar si days_of_week no está vacío
+                # FIX: reemplazados todos los print() por current_app.logger
+                if task.days_of_week:
                     days_of_week = [int(d) for d in task.days_of_week.split(",")]
                 else:
-                    days_of_week = []  # Asignar una lista vacía si days_of_week está vacío
+                    days_of_week = []
 
-                print(
-                    f"Task ID: {task.id}, Start Date: {start_date}, End Date: {end_date}, Days of Week: {days_of_week}"
+                current_app.logger.debug(
+                    f"Task ID: {task.id}, Start: {start_date}, End: {end_date}, "
+                    f"Days of Week: {days_of_week}"
                 )
 
                 if start_date and end_date and days_of_week:
-                    # Validar que start_date y end_date no sean None
-                    if task.start_date and task.end_date:
-                        duration = task.end_date - task.start_date
-                    else:
-                        print(
-                            f"Error procesando la tarea {task.id}: start_date o end_date es None"
+                    if not (task.start_date and task.end_date):
+                        current_app.logger.warning(
+                            f"Tarea {task.id}: start_date o end_date es None, omitiendo"
                         )
                         continue
 
+                    duration = task.end_date - task.start_date
                     current_date = start_date
-                    while current_date <= end_date:
-                        print(
-                            f"Current Date: {current_date}, Weekday: {current_date.weekday()}"
-                        )
-                        if current_date.weekday() in days_of_week:
-                            # Calcular la fecha de finalización del evento recurrente
-                            event_end = current_date + duration
 
+                    while current_date <= end_date:
+                        if current_date.weekday() in days_of_week:
+                            event_end = current_date + duration
                             event = {
                                 "id": task.id,
                                 "title": task.title,
@@ -172,10 +181,8 @@ def api_tasks():
                                 },
                             }
                             events.append(event)
-                            print(f"Evento recurrente generado: {event}")
                         current_date += timedelta(days=1)
             else:
-                # Evento no recurrente
                 if task.start_date and task.end_date:
                     event = {
                         "id": task.id,
@@ -189,17 +196,16 @@ def api_tasks():
                         "extendedProps": {
                             "description": task.description or "",
                             "completed": task.completed,
-                            "originalStart": task.start_date.isoformat()
-                            if task.start_date
-                            else None,
-                            "originalEnd": task.end_date.isoformat()
-                            if task.end_date
-                            else None,
+                            "originalStart": task.start_date.isoformat(),
+                            "originalEnd": task.end_date.isoformat(),
                         },
                     }
                     events.append(event)
         except Exception as e:
-            print(f"Error procesando la tarea {task.id}: {e}")
+            current_app.logger.error(
+                f"Error procesando la tarea {task.id}: {e}", exc_info=True
+            )
+
     return jsonify(events)
 
 
@@ -212,86 +218,52 @@ def api_pending_tasks():
 @task_bp.route("/api/tasks/<int:task_id>", methods=["PUT"])
 def update_task(task_id):
     try:
-        # Verify JSON content type
         if not request.is_json:
-            return (
-                jsonify(
-                    {
-                        "status": "error",
-                        "message": "Content-Type must be application/json",
-                    }
-                ),
-                400,
-                {"Content-Type": "application/json"},
-            )
+            return jsonify({"status": "error", "message": "Content-Type must be application/json"}), 400
 
         data = request.get_json()
-
-        # Log received data
         current_app.logger.info(f"Received data for task {task_id}: {data}")
 
-        task = Task.query.get_or_404(task_id)
+        task = db.session.get(Task, task_id)
+        if task is None:
+            return jsonify({"status": "error", "message": "Tarea no encontrada"}), 404
 
-        # Update dates with validation
         if "start" in data:
             try:
                 task.start_date = isoparse(data["start"])
             except Exception as e:
-                return (
-                    jsonify(
-                        {"status": "error", "message": f"Invalid start date: {str(e)}"}
-                    ),
-                    400,
-                    {"Content-Type": "application/json"},
-                )
+                return jsonify({"status": "error", "message": f"Invalid start date: {str(e)}"}), 400
 
         if "end" in data:
             try:
                 task.end_date = isoparse(data["end"]) if data["end"] else None
             except Exception as e:
-                return (
-                    jsonify(
-                        {"status": "error", "message": f"Invalid end date: {str(e)}"}
-                    ),
-                    400,
-                    {"Content-Type": "application/json"},
-                )
+                return jsonify({"status": "error", "message": f"Invalid end date: {str(e)}"}), 400
 
         db.session.commit()
 
-        # Return success response
-        return (
-            jsonify(
-                {
-                    "status": "success",
-                    "data": {
-                        "id": task.id,
-                        "start": task.start_date.isoformat()
-                        if task.start_date
-                        else None,
-                        "end": task.end_date.isoformat() if task.end_date else None,
-                    },
-                }
-            ),
-            200,
-            {"Content-Type": "application/json"},
-        )
+        return jsonify({
+            "status": "success",
+            "data": {
+                "id": task.id,
+                "start": task.start_date.isoformat() if task.start_date else None,
+                "end": task.end_date.isoformat() if task.end_date else None,
+            },
+        }), 200
 
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(
-            f"Error updating task {task_id}: {str(e)}", exc_info=True
-        )
-        return (
-            jsonify({"status": "error", "message": str(e)}),
-            400,
-            {"Content-Type": "application/json"},
-        )
+        current_app.logger.error(f"Error updating task {task_id}: {str(e)}", exc_info=True)
+        return jsonify({"status": "error", "message": str(e)}), 400
 
 
 @task_bp.route("/toggle/<int:task_id>", methods=["POST"])
 def toggle_task(task_id):
-    task = Task.query.get_or_404(task_id)
+    task = db.session.get(Task, task_id)
+    if task is None:
+        from flask import abort
+        abort(404)
+
     task.completed = not task.completed
     db.session.commit()
     return jsonify(task.to_dict())

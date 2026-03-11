@@ -1,9 +1,10 @@
 import os
 import logging
 
-logging.basicConfig(
-    filename="errors.log", level=logging.ERROR, format="%(asctime)s- %(message)s"
-)
+# FIX: se elimina el basicConfig de aquí. app.py gestiona su propio FileHandler
+# para el logger de Flask. Tener basicConfig aquí causaba entradas duplicadas en
+# errors.log porque configuraba el logger raíz Y app.py añadía otro handler encima.
+logging.basicConfig(level=logging.WARNING)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -15,15 +16,16 @@ class Config:
     ) or "sqlite:///" + os.path.join(basedir, "instance", "hacker-panel.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # Configuración de tipos MIME
     SEND_FILE_MAX_AGE_DEFAULT = 0
     TEMPLATES_AUTO_RELOAD = True
 
-    # Configuración de archivos estáticos
     STATIC_FOLDER = "static"
     STATIC_URL_PATH = "/static"
 
-    # Configuración para url_for fuera de requests
-    SERVER_NAME = os.environ.get("SERVER_NAME") or "localhost:5000"
+    # FIX: SERVER_NAME eliminado. Con SERVER_NAME seteado, Flask rechaza peticiones
+    # de cualquier host que no coincida exactamente (falla en Docker, con IP de red,
+    # o si el puerto cambia). Para desarrollo local no aporta ningún beneficio.
+    # Si se necesita para url_for() fuera de request context, usar app.test_request_context()
+    # o pasar _external=False explícitamente.
     APPLICATION_ROOT = "/"
     PREFERRED_URL_SCHEME = "http"

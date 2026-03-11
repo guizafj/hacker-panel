@@ -1,252 +1,460 @@
-/* GitHub-like Markdown Styles */
-.markdown-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-    font-size: 16px;
-    line-height: 1.5;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    hyphens: auto;
-    color: #24292f;
-    background-color: #ffffff;
-    border-radius: 6px;
-    padding: 32px;
-    margin: 0 auto;
-    max-width: 980px;
-    width: 100%;
-    box-sizing: border-box;
-}
+/* =============================================================================
+   HACKER PANEL — Markdown Styles (GitHub-inspired)
+   Diseñado para coexistir con Tailwind CSS Preflight.
+   Usa !important selectivamente en los elementos que Preflight resetea:
+     - h1-h6: font-size/weight → inherit
+     - p, blockquote, pre, hr: margin → 0
+     - ul, ol: list-style → none, margin/padding → 0
+     - a: color/text-decoration → inherit
+   Dark mode usa la clase .dark en <html> (darkMode: 'class' en Tailwind).
+============================================================================= */
 
-/* Contenedor principal para asegurar que no se salga */
+
+/* ---------------------------------------------------------------------------
+   Contenedor externo
+--------------------------------------------------------------------------- */
+
 .markdown-container {
     width: 100%;
-    max-width: 980px;
-    margin: 0 auto;
-    padding: 0 16px;
     box-sizing: border-box;
 }
 
-/* Dark mode */
-.dark .markdown-body {
-    color: #c9d1d9;
-    background-color: #0d1117;
+
+/* ---------------------------------------------------------------------------
+   Cuerpo del documento
+--------------------------------------------------------------------------- */
+
+.markdown-body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
+                 Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    font-size: 16px;
+    line-height: 1.6;
+    color: #24292f;
+    background-color: transparent; /* hereda el fondo del <main> de base.html */
+    box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    /* FIX: white-space: pre-wrap eliminado — causaba desbordamiento horizontal
+       en todo el texto. Solo se aplica dentro de <pre> y <code>. */
 }
 
-/* Headings */
+.dark .markdown-body {
+    color: #e6edf3;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Headings
+   !important necesario: Preflight aplica font-size/weight: inherit a h1-h6
+   con selector global, que tiene igual especificidad que .markdown-body hN
+   pero aparece antes en el CSS. !important lo garantiza sin importar el orden.
+--------------------------------------------------------------------------- */
+
 .markdown-body h1,
-.markdown-body h2 {
-    border-bottom: 1px solid #d1d9e0;
-    padding-bottom: 0.3em;
-    font-weight: 600;
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+    font-weight: 600 !important;
     line-height: 1.25;
-    margin-top: 24px;
-    margin-bottom: 16px;
+    margin-top: 1.5em !important;
+    margin-bottom: 0.5em !important;
+}
+
+/* El primer heading del documento no necesita margen superior */
+.markdown-body > h1:first-child,
+.markdown-body > h2:first-child,
+.markdown-body > h3:first-child {
+    margin-top: 0 !important;
 }
 
 .markdown-body h1 {
-    font-size: 2em;
+    font-size: 1.75em !important; /* H1 del .md es h2 visual — el título de página ya ocupa h1 */
     border-bottom: 1px solid #d1d9e0;
+    padding-bottom: 0.3em;
 }
 
 .markdown-body h2 {
-    font-size: 1.5em;
+    font-size: 1.5em !important;
     border-bottom: 1px solid #d1d9e0;
+    padding-bottom: 0.3em;
 }
 
-.markdown-body h3 {
-    font-size: 1.25em;
-    font-weight: 600;
-    margin-top: 24px;
-    margin-bottom: 16px;
-}
-
-.markdown-body h4 {
-    font-size: 1em;
-    font-weight: 600;
-    margin-top: 24px;
-    margin-bottom: 16px;
-}
-
-.markdown-body h5 {
-    font-size: 0.875em;
-    font-weight: 600;
-    margin-top: 24px;
-    margin-bottom: 16px;
-}
-
+.markdown-body h3 { font-size: 1.25em !important; }
+.markdown-body h4 { font-size: 1em !important; }
+.markdown-body h5 { font-size: 0.875em !important; }
 .markdown-body h6 {
-    font-size: 0.85em;
-    font-weight: 600;
-    margin-top: 24px;
-    margin-bottom: 16px;
+    font-size: 0.85em !important;
+    color: #656d76;
 }
 
 .dark .markdown-body h1,
 .dark .markdown-body h2 {
     border-bottom-color: #30363d;
-    color: #c9d1d9;
+    color: #e6edf3;
 }
 
-/* Paragraphs */
+.dark .markdown-body h3,
+.dark .markdown-body h4,
+.dark .markdown-body h5 {
+    color: #e6edf3;
+}
+
+.dark .markdown-body h6 {
+    color: #8b949e;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Párrafos
+   !important en margin: Preflight aplica margin: 0 a <p> globalmente.
+--------------------------------------------------------------------------- */
+
 .markdown-body p {
-    margin-top: 0;
-    margin-bottom: 16px;
+    margin-top: 0 !important;
+    margin-bottom: 1em !important;
     overflow-wrap: break-word;
     word-wrap: break-word;
-    hyphens: auto;
 }
 
-/* Line breaks and spacing */
-.markdown-body br {
-    display: block;
-    content: "";
-    margin-top: 0.5em;
-}
 
-/* Ensure proper line breaks in text */
-.markdown-body {
-    white-space: pre-wrap;
-}
+/* ---------------------------------------------------------------------------
+   Links
+   !important en color y text-decoration: Preflight aplica color/text-decoration: inherit.
+--------------------------------------------------------------------------- */
 
-/* Links */
 .markdown-body a {
-    color: #0969da;
-    text-decoration: none;
+    color: #0969da !important;
+    text-decoration: none !important;
 }
 
 .markdown-body a:hover {
-    text-decoration: underline;
+    text-decoration: underline !important;
 }
 
 .dark .markdown-body a {
-    color: #58a6ff;
+    color: #58a6ff !important;
 }
 
-/* Lists */
+
+/* ---------------------------------------------------------------------------
+   Listas
+   !important en list-style, margin y padding: Preflight resetea todo a none/0.
+--------------------------------------------------------------------------- */
+
 .markdown-body ul,
 .markdown-body ol {
-    padding-left: 2em;
-    margin-top: 0;
-    margin-bottom: 16px;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
+    margin-top: 0 !important;
+    margin-bottom: 1em !important;
+    padding-left: 2em !important;
+}
+
+.markdown-body ul {
+    list-style: disc !important;
+}
+
+.markdown-body ol {
+    list-style: decimal !important;
+}
+
+/* Listas anidadas — sin margen inferior extra */
+.markdown-body ul ul,
+.markdown-body ol ol,
+.markdown-body ul ol,
+.markdown-body ol ul {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    list-style: circle !important;
+}
+
+.markdown-body ul ul ul,
+.markdown-body ol ol ol {
+    list-style: square !important;
 }
 
 .markdown-body li {
     margin-top: 0.25em;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-}
-
-.markdown-body li > p {
-    margin-top: 16px;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
+    line-height: 1.6;
 }
 
 .markdown-body li + li {
     margin-top: 0.25em;
 }
 
-/* Nested lists */
-.markdown-body ul ul,
-.markdown-body ol ol,
-.markdown-body ul ol,
-.markdown-body ol ul {
-    margin-top: 0;
-    margin-bottom: 0;
+.markdown-body li > p {
+    margin-top: 0.5em !important;
+    margin-bottom: 0.5em !important;
 }
 
-/* List items with long text */
-.markdown-body li {
-    display: list-item;
-    list-style-position: outside;
+
+/* ---------------------------------------------------------------------------
+   Blockquotes
+   !important en margin: Preflight aplica margin: 0 a blockquote globalmente.
+--------------------------------------------------------------------------- */
+
+.markdown-body blockquote {
+    border-left: 0.25em solid #d1d9e0;
+    color: #656d76;
+    padding: 0 1em !important;
+    margin: 0 0 1em 0 !important;
 }
 
-/* Code blocks */
-.markdown-body pre {
-    background-color: #f6f8fa;
-    border-radius: 6px;
-    padding: 16px;
-    overflow: auto;
+.markdown-body blockquote > :last-child {
+    margin-bottom: 0 !important;
+}
+
+.dark .markdown-body blockquote {
+    border-left-color: #3d444d;
+    color: #9198a1;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Código inline
+--------------------------------------------------------------------------- */
+
+.markdown-body code {
+    background-color: rgba(175, 184, 193, 0.2);
+    border-radius: 4px;
     font-size: 85%;
-    line-height: 1.45;
-    margin-bottom: 16px;
-    border: 1px solid #d1d9e0;
+    padding: 0.2em 0.4em;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas,
+                 "Liberation Mono", Menlo, monospace;
+    /* NO white-space: pre-wrap aquí — solo en <pre code> */
 }
 
-.dark .markdown-body pre {
-    background-color: #161b22;
-    border-color: #30363d;
-    color: #c9d1d9;
+.dark .markdown-body code {
+    background-color: rgba(110, 118, 129, 0.4);
+    color: #e6edf3;
 }
 
+/* Código dentro de pre no necesita el fondo del inline */
 .markdown-body pre code {
     background: transparent;
     border: 0;
     padding: 0;
     font-size: inherit;
     color: inherit;
+    white-space: pre;       /* dentro de pre sí queremos respetar espacios */
+    overflow-wrap: normal;
+    word-break: normal;
 }
 
-/* Inline code */
-.markdown-body code {
-    background-color: rgba(175, 184, 193, 0.2);
+
+/* ---------------------------------------------------------------------------
+   Bloques de código — <pre> nativo (sin Pygments)
+   !important en margin: Preflight aplica margin: 0 a <pre>.
+--------------------------------------------------------------------------- */
+
+.markdown-body pre {
+    background-color: #f6f8fa;
+    border: 1px solid #d1d9e0;
     border-radius: 6px;
     font-size: 85%;
-    padding: 0.2em 0.4em;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+    line-height: 1.45;
+    margin-top: 0 !important;
+    margin-bottom: 1em !important;
+    overflow: auto;
+    padding: 16px;
+    white-space: pre;       /* aquí sí queremos pre — es código */
 }
 
-.dark .markdown-body code {
-    background-color: rgba(110, 118, 129, 0.4);
+.dark .markdown-body pre {
+    background-color: #161b22;
+    border-color: #3d444d;
+    color: #e6edf3;
 }
 
-/* Blockquotes */
-.markdown-body blockquote {
-    border-left: 0.25em solid #d1d9e0;
-    color: #656d76;
-    padding: 0 1em;
-    margin: 0 0 16px 0;
+
+/* ---------------------------------------------------------------------------
+   Bloques de código con Pygments (.codehilite)
+   Pygments envuelve el código en <div class="codehilite"><pre>…</pre></div>
+   fuera del flujo normal de <pre>, así que necesita sus propios estilos.
+--------------------------------------------------------------------------- */
+
+.markdown-body .codehilite {
+    background-color: #f6f8fa;
+    border: 1px solid #d1d9e0;
+    border-radius: 6px;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas,
+                 "Liberation Mono", Menlo, monospace;
+    font-size: 85%;
+    line-height: 1.45;
+    margin-bottom: 1em;
+    overflow-x: auto;
+    position: relative;
 }
 
-.dark .markdown-body blockquote {
-    border-left-color: #30363d;
-    color: #8b949e;
+.markdown-body .codehilite pre {
+    margin: 0 !important;
+    background: transparent;
+    border: 0;
+    padding: 16px;
+    font-size: inherit;
+    color: inherit;
+    line-height: inherit;
+    overflow-x: auto;
+    white-space: pre;
 }
 
-/* Tables */
+.dark .markdown-body .codehilite {
+    background-color: #161b22;
+    border-color: #3d444d;
+    color: #e6edf3;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Pygments — colores GitHub Light
+--------------------------------------------------------------------------- */
+
+.markdown-body .codehilite .hll { background-color: #fff3cd }
+.markdown-body .codehilite .c   { color: #6a737d } /* Comment */
+.markdown-body .codehilite .err { color: #cb2431 } /* Error */
+.markdown-body .codehilite .k   { color: #d73a49 } /* Keyword */
+.markdown-body .codehilite .l   { color: #005cc5 } /* Literal */
+.markdown-body .codehilite .n   { color: #24292e } /* Name */
+.markdown-body .codehilite .o   { color: #005cc5 } /* Operator */
+.markdown-body .codehilite .p   { color: #24292e } /* Punctuation */
+.markdown-body .codehilite .cm  { color: #6a737d } /* Comment.Multiline */
+.markdown-body .codehilite .cp  { color: #6a737d } /* Comment.Preproc */
+.markdown-body .codehilite .c1  { color: #6a737d } /* Comment.Single */
+.markdown-body .codehilite .cs  { color: #6a737d } /* Comment.Special */
+.markdown-body .codehilite .gd  { color: #cb2431 } /* Generic.Deleted */
+.markdown-body .codehilite .ge  { font-style: italic }
+.markdown-body .codehilite .gi  { color: #22863a } /* Generic.Inserted */
+.markdown-body .codehilite .go  { color: #6a737d } /* Generic.Output */
+.markdown-body .codehilite .gp  { color: #6a737d } /* Generic.Prompt */
+.markdown-body .codehilite .gs  { font-weight: bold }
+.markdown-body .codehilite .kc  { color: #d73a49 }
+.markdown-body .codehilite .kd  { color: #d73a49 }
+.markdown-body .codehilite .kn  { color: #d73a49 }
+.markdown-body .codehilite .kp  { color: #d73a49 }
+.markdown-body .codehilite .kr  { color: #d73a49 }
+.markdown-body .codehilite .kt  { color: #d73a49 }
+.markdown-body .codehilite .ld  { color: #032f62 }
+.markdown-body .codehilite .m   { color: #005cc5 }
+.markdown-body .codehilite .s   { color: #032f62 }
+.markdown-body .codehilite .na  { color: #005cc5 }
+.markdown-body .codehilite .nb  { color: #005cc5 }
+.markdown-body .codehilite .nc  { color: #6f42c1 }
+.markdown-body .codehilite .no  { color: #005cc5 }
+.markdown-body .codehilite .nd  { color: #6f42c1 }
+.markdown-body .codehilite .ne  { color: #cb2431 }
+.markdown-body .codehilite .nf  { color: #6f42c1 }
+.markdown-body .codehilite .nl  { color: #005cc5 }
+.markdown-body .codehilite .nn  { color: #24292e }
+.markdown-body .codehilite .nt  { color: #22863a }
+.markdown-body .codehilite .nv  { color: #005cc5 }
+.markdown-body .codehilite .ow  { color: #d73a49 }
+.markdown-body .codehilite .w   { color: #bbbbbb }
+.markdown-body .codehilite .mi  { color: #005cc5 }
+.markdown-body .codehilite .mf  { color: #005cc5 }
+.markdown-body .codehilite .mh  { color: #005cc5 }
+.markdown-body .codehilite .s2  { color: #032f62 }
+.markdown-body .codehilite .se  { color: #032f62 }
+.markdown-body .codehilite .s1  { color: #032f62 }
+.markdown-body .codehilite .sr  { color: #032f62 }
+.markdown-body .codehilite .ss  { color: #032f62 }
+.markdown-body .codehilite .bp  { color: #005cc5 }
+.markdown-body .codehilite .fm  { color: #6f42c1 }
+.markdown-body .codehilite .vc  { color: #005cc5 }
+.markdown-body .codehilite .vg  { color: #005cc5 }
+.markdown-body .codehilite .vi  { color: #005cc5 }
+.markdown-body .codehilite .il  { color: #005cc5 }
+
+
+/* ---------------------------------------------------------------------------
+   Pygments — colores GitHub Dark
+--------------------------------------------------------------------------- */
+
+.dark .markdown-body .codehilite          { background-color: #161b22; border-color: #3d444d; color: #e6edf3; }
+.dark .markdown-body .codehilite .c       { color: #8b949e }
+.dark .markdown-body .codehilite .err     { color: #f85149 }
+.dark .markdown-body .codehilite .k       { color: #ff7b72 }
+.dark .markdown-body .codehilite .l       { color: #79c0ff }
+.dark .markdown-body .codehilite .n       { color: #e6edf3 }
+.dark .markdown-body .codehilite .o       { color: #ff7b72 }
+.dark .markdown-body .codehilite .p       { color: #e6edf3 }
+.dark .markdown-body .codehilite .cm      { color: #8b949e }
+.dark .markdown-body .codehilite .cp      { color: #8b949e }
+.dark .markdown-body .codehilite .c1      { color: #8b949e }
+.dark .markdown-body .codehilite .cs      { color: #8b949e }
+.dark .markdown-body .codehilite .gd      { color: #f85149 }
+.dark .markdown-body .codehilite .gi      { color: #56d364 }
+.dark .markdown-body .codehilite .go      { color: #8b949e }
+.dark .markdown-body .codehilite .gp      { color: #8b949e }
+.dark .markdown-body .codehilite .gs      { font-weight: bold }
+.dark .markdown-body .codehilite .kc      { color: #ff7b72 }
+.dark .markdown-body .codehilite .kd      { color: #ff7b72 }
+.dark .markdown-body .codehilite .kn      { color: #ff7b72 }
+.dark .markdown-body .codehilite .kp      { color: #ff7b72 }
+.dark .markdown-body .codehilite .kr      { color: #ff7b72 }
+.dark .markdown-body .codehilite .kt      { color: #ff7b72 }
+.dark .markdown-body .codehilite .ld      { color: #a5d6ff }
+.dark .markdown-body .codehilite .m       { color: #79c0ff }
+.dark .markdown-body .codehilite .s       { color: #a5d6ff }
+.dark .markdown-body .codehilite .na      { color: #79c0ff }
+.dark .markdown-body .codehilite .nb      { color: #ff7b72 }
+.dark .markdown-body .codehilite .nc      { color: #f2cc60 }
+.dark .markdown-body .codehilite .no      { color: #79c0ff }
+.dark .markdown-body .codehilite .nd      { color: #e6edf3 }
+.dark .markdown-body .codehilite .ne      { color: #f85149 }
+.dark .markdown-body .codehilite .nf      { color: #d2a8ff }
+.dark .markdown-body .codehilite .nl      { color: #79c0ff }
+.dark .markdown-body .codehilite .nn      { color: #e6edf3 }
+.dark .markdown-body .codehilite .nt      { color: #7ee787 }
+.dark .markdown-body .codehilite .nv      { color: #79c0ff }
+.dark .markdown-body .codehilite .ow      { color: #ff7b72 }
+.dark .markdown-body .codehilite .w       { color: #e6edf3 }
+.dark .markdown-body .codehilite .mi      { color: #79c0ff }
+.dark .markdown-body .codehilite .mf      { color: #79c0ff }
+.dark .markdown-body .codehilite .mh      { color: #79c0ff }
+.dark .markdown-body .codehilite .s2      { color: #a5d6ff }
+.dark .markdown-body .codehilite .se      { color: #a5d6ff }
+.dark .markdown-body .codehilite .s1      { color: #a5d6ff }
+.dark .markdown-body .codehilite .sr      { color: #a5d6ff }
+.dark .markdown-body .codehilite .ss      { color: #a5d6ff }
+.dark .markdown-body .codehilite .bp      { color: #ff7b72 }
+.dark .markdown-body .codehilite .fm      { color: #d2a8ff }
+.dark .markdown-body .codehilite .vc      { color: #79c0ff }
+.dark .markdown-body .codehilite .vg      { color: #79c0ff }
+.dark .markdown-body .codehilite .vi      { color: #79c0ff }
+.dark .markdown-body .codehilite .il      { color: #79c0ff }
+
+
+/* ---------------------------------------------------------------------------
+   Tablas
+--------------------------------------------------------------------------- */
+
 .markdown-body table {
     border-collapse: collapse;
     width: 100%;
-    margin-bottom: 16px;
+    margin-bottom: 1em;
     overflow: auto;
-    border: 1px solid #d1d9e0;
-    border-radius: 6px;
+    display: block;         /* permite scroll horizontal en tablas anchas */
 }
 
 .markdown-body table th,
 .markdown-body table td {
     border: 1px solid #d1d9e0;
     padding: 6px 13px;
+    text-align: left;
 }
 
 .markdown-body table th {
     background-color: #f6f8fa;
-    font-weight: 600;
+    font-weight: 600 !important;
 }
 
 .markdown-body table tr:nth-child(2n) {
     background-color: #f6f8fa;
 }
 
-.dark .markdown-body table {
-    border-color: #30363d;
-}
-
 .dark .markdown-body table th,
 .dark .markdown-body table td {
-    border-color: #30363d;
+    border-color: #3d444d;
 }
 
 .dark .markdown-body table th {
@@ -254,28 +462,20 @@
 }
 
 .dark .markdown-body table tr:nth-child(2n) {
-    background-color: #161b22;
+    background-color: #1c2128;
 }
 
-/* Horizontal rules */
-.markdown-body hr {
-    border: none;
-    border-top: 1px solid #d1d9e0;
-    margin: 24px 0;
-    height: 1px;
-}
 
-.dark .markdown-body hr {
-    border-top-color: #30363d;
-}
+/* ---------------------------------------------------------------------------
+   Imágenes
+--------------------------------------------------------------------------- */
 
-/* Images */
 .markdown-body img,
 .markdown-body .markdown-image {
     max-width: 100%;
     height: auto;
     display: block;
-    margin: 16px auto;
+    margin: 1em auto;
     border-radius: 6px;
     box-shadow: 0 0 0 1px rgba(27, 31, 35, 0.15);
 }
@@ -285,216 +485,94 @@
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
-/* Syntax highlighting - GitHub style */
-.codehilite {
-    background: #f6f8fa;
-    border: 1px solid #d1d9e0;
-    border-radius: 6px;
-    padding: 16px;
-    overflow-x: auto;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-    font-size: 85%;
-    line-height: 1.45;
-    margin-bottom: 16px;
-    position: relative;
+
+/* ---------------------------------------------------------------------------
+   Separadores horizontales
+   !important en margin: Preflight aplica margin: 0 a <hr>.
+--------------------------------------------------------------------------- */
+
+.markdown-body hr {
+    border: none;
+    border-top: 1px solid #d1d9e0;
+    height: 1px;
+    margin: 1.5em 0 !important;
 }
 
-.codehilite pre {
-    margin: 0;
-    background: transparent;
-    border: 0;
-    padding: 0;
-    font-size: inherit;
-    color: inherit;
-    line-height: inherit;
-    overflow-x: auto;
+.dark .markdown-body hr {
+    border-top-color: #3d444d;
 }
 
-.codehilite .highlight {
-    background: transparent;
-}
 
-/* Pygments color scheme - GitHub Light */
-.codehilite .hll { background-color: #fff3cd }
-.codehilite .c { color: #6a737d } /* Comment */
-.codehilite .err { color: #cb2431 } /* Error */
-.codehilite .k { color: #d73a49 } /* Keyword */
-.codehilite .l { color: #005cc5 } /* Literal */
-.codehilite .n { color: #24292e } /* Name */
-.codehilite .o { color: #005cc5 } /* Operator */
-.codehilite .p { color: #005cc5 } /* Punctuation */
-.codehilite .cm { color: #6a737d } /* Comment.Multiline */
-.codehilite .cp { color: #6a737d } /* Comment.Preproc */
-.codehilite .c1 { color: #6a737d } /* Comment.Single */
-.codehilite .cs { color: #6a737d } /* Comment.Special */
-.codehilite .gd { color: #cb2431 } /* Generic.Deleted */
-.codehilite .ge { font-style: italic } /* Generic.Emph */
-.codehilite .gr { color: #cb2431 } /* Generic.Error */
-.codehilite .gh { color: #6a737d } /* Generic.Heading */
-.codehilite .gi { color: #22863a } /* Generic.Inserted */
-.codehilite .go { color: #6a737d } /* Generic.Output */
-.codehilite .gp { color: #6a737d } /* Generic.Prompt */
-.codehilite .gs { font-weight: bold } /* Generic.Strong */
-.codehilite .gu { color: #6a737d } /* Generic.Subheading */
-.codehilite .gt { color: #cb2431 } /* Generic.Traceback */
-.codehilite .kc { color: #d73a49 } /* Keyword.Constant */
-.codehilite .kd { color: #d73a49 } /* Keyword.Declaration */
-.codehilite .kn { color: #d73a49 } /* Keyword.Namespace */
-.codehilite .kp { color: #d73a49 } /* Keyword.Pseudo */
-.codehilite .kr { color: #d73a49 } /* Keyword.Reserved */
-.codehilite .kt { color: #d73a49 } /* Keyword.Type */
-.codehilite .ld { color: #032f62 } /* Literal.Date */
-.codehilite .m { color: #005cc5 } /* Literal.Number */
-.codehilite .s { color: #032f62 } /* Literal.String */
-.codehilite .na { color: #005cc5 } /* Name.Attribute */
-.codehilite .nb { color: #005cc5 } /* Name.Builtin */
-.codehilite .nc { color: #005cc5 } /* Name.Class */
-.codehilite .no { color: #005cc5 } /* Name.Constant */
-.codehilite .nd { color: #005cc5 } /* Name.Decorator */
-.codehilite .ni { color: #005cc5 } /* Name.Entity */
-.codehilite .ne { color: #005cc5 } /* Name.Exception */
-.codehilite .nf { color: #005cc5 } /* Name.Function */
-.codehilite .nl { color: #005cc5 } /* Name.Label */
-.codehilite .nn { color: #005cc5 } /* Name.Namespace */
-.codehilite .nx { color: #005cc5 } /* Name.Other */
-.codehilite .py { color: #005cc5 } /* Name.Property */
-.codehilite .nt { color: #005cc5 } /* Name.Tag */
-.codehilite .nv { color: #005cc5 } /* Name.Variable */
-.codehilite .ow { color: #005cc5 } /* Operator.Word */
-.codehilite .w { color: #bbbbbb } /* Text.Whitespace */
-.codehilite .mb { color: #005cc5 } /* Literal.Number.Bin */
-.codehilite .mf { color: #005cc5 } /* Literal.Number.Float */
-.codehilite .mh { color: #005cc5 } /* Literal.Number.Hex */
-.codehilite .mi { color: #005cc5 } /* Literal.Number.Integer */
-.codehilite .mo { color: #005cc5 } /* Literal.Number.Oct */
-.codehilite .sa { color: #032f62 } /* Literal.String.Affix */
-.codehilite .sb { color: #032f62 } /* Literal.String.Backtick */
-.codehilite .sc { color: #032f62 } /* Literal.String.Char */
-.codehilite .dl { color: #032f62 } /* Literal.String.Delimiter */
-.codehilite .sd { color: #6a737d } /* Literal.String.Doc */
-.codehilite .s2 { color: #032f62 } /* Literal.String.Double */
-.codehilite .se { color: #032f62 } /* Literal.String.Escape */
-.codehilite .sh { color: #032f62 } /* Literal.String.Herald */
-.codehilite .si { color: #032f62 } /* Literal.String.Interpol */
-.codehilite .sx { color: #032f62 } /* Literal.String.Other */
-.codehilite .sr { color: #032f62 } /* Literal.String.Regex */
-.codehilite .s1 { color: #032f62 } /* Literal.String.Single */
-.codehilite .ss { color: #032f62 } /* Literal.String.Symbol */
-.codehilite .bp { color: #005cc5 } /* Name.Builtin.Pseudo */
-.codehilite .fm { color: #005cc5 } /* Name.Function.Magic */
-.codehilite .vc { color: #005cc5 } /* Name.Variable.Class */
-.codehilite .vg { color: #005cc5 } /* Name.Variable.Global */
-.codehilite .vi { color: #005cc5 } /* Name.Variable.Instance */
-.codehilite .vm { color: #005cc5 } /* Name.Variable.Magic */
-.codehilite .il { color: #005cc5 } /* Literal.Number.Integer.Long */
+/* ---------------------------------------------------------------------------
+   Task lists (- [x] / - [ ])
+--------------------------------------------------------------------------- */
 
-/* Dark mode Pygments colors - GitHub Dark */
-.dark .codehilite {
-    background: #161b22;
-    border-color: #30363d;
-    color: #c9d1d9;
-}
-
-.dark .codehilite .c { color: #8b949e } /* Comment */
-.dark .codehilite .err { color: #f85149 } /* Error */
-.dark .codehilite .k { color: #ff7b72 } /* Keyword */
-.dark .codehilite .l { color: #79c0ff } /* Literal */
-.dark .codehilite .n { color: #c9d1d9 } /* Name */
-.dark .codehilite .o { color: #ff7b72 } /* Operator */
-.dark .codehilite .p { color: #c9d1d9 } /* Punctuation */
-.dark .codehilite .cm { color: #8b949e } /* Comment.Multiline */
-.dark .codehilite .cp { color: #8b949e } /* Comment.Preproc */
-.dark .codehilite .c1 { color: #8b949e } /* Comment.Single */
-.dark .codehilite .cs { color: #8b949e } /* Comment.Special */
-.dark .codehilite .gd { color: #f85149 } /* Generic.Deleted */
-.dark .codehilite .ge { font-style: italic } /* Generic.Emph */
-.dark .codehilite .gr { color: #f85149 } /* Generic.Error */
-.dark .codehilite .gh { color: #8b949e } /* Generic.Heading */
-.dark .codehilite .gi { color: #56d364 } /* Generic.Inserted */
-.dark .codehilite .go { color: #8b949e } /* Generic.Output */
-.dark .codehilite .gp { color: #8b949e } /* Generic.Prompt */
-.dark .codehilite .gs { font-weight: bold } /* Generic.Strong */
-.dark .codehilite .gu { color: #8b949e } /* Generic.Subheading */
-.dark .codehilite .gt { color: #f85149 } /* Generic.Traceback */
-.dark .codehilite .kc { color: #ff7b72 } /* Keyword.Constant */
-.dark .codehilite .kd { color: #ff7b72 } /* Keyword.Declaration */
-.dark .codehilite .kn { color: #ff7b72 } /* Keyword.Namespace */
-.dark .codehilite .kp { color: #ff7b72 } /* Keyword.Pseudo */
-.dark .codehilite .kr { color: #ff7b72 } /* Keyword.Reserved */
-.dark .codehilite .kt { color: #ff7b72 } /* Keyword.Type */
-.dark .codehilite .ld { color: #79c0ff } /* Literal.Date */
-.dark .codehilite .m { color: #79c0ff } /* Literal.Number */
-.dark .codehilite .s { color: #a5c9ea } /* Literal.String */
-.dark .codehilite .na { color: #79c0ff } /* Name.Attribute */
-.dark .codehilite .nb { color: #ff7b72 } /* Name.Builtin */
-.dark .codehilite .nc { color: #f2cc60 } /* Name.Class */
-.dark .codehilite .no { color: #79c0ff } /* Name.Constant */
-.dark .codehilite .nd { color: #c9d1d9 } /* Name.Decorator */
-.dark .codehilite .ni { color: #c9d1d9 } /* Name.Entity */
-.dark .codehilite .ne { color: #f85149 } /* Name.Exception */
-.dark .codehilite .nf { color: #d2a8ff } /* Name.Function */
-.dark .codehilite .nl { color: #79c0ff } /* Name.Label */
-.dark .codehilite .nn { color: #c9d1d9 } /* Name.Namespace */
-.dark .codehilite .nx { color: #c9d1d9 } /* Name.Other */
-.dark .codehilite .py { color: #c9d1d9 } /* Name.Property */
-.dark .codehilite .nt { color: #7ee787 } /* Name.Tag */
-.dark .codehilite .nv { color: #79c0ff } /* Name.Variable */
-.dark .codehilite .ow { color: #ff7b72 } /* Operator.Word */
-.dark .codehilite .w { color: #c9d1d9 } /* Text.Whitespace */
-.dark .codehilite .mb { color: #79c0ff } /* Literal.Number.Bin */
-.dark .codehilite .mf { color: #79c0ff } /* Literal.Number.Float */
-.dark .codehilite .mh { color: #79c0ff } /* Literal.Number.Hex */
-.dark .codehilite .mi { color: #79c0ff } /* Literal.Number.Integer */
-.dark .codehilite .mo { color: #79c0ff } /* Literal.Number.Oct */
-.dark .codehilite .sa { color: #a5c9ea } /* Literal.String.Affix */
-.dark .codehilite .sb { color: #a5c9ea } /* Literal.String.Backtick */
-.dark .codehilite .sc { color: #a5c9ea } /* Literal.String.Char */
-.dark .codehilite .dl { color: #a5c9ea } /* Literal.String.Delimiter */
-.dark .codehilite .sd { color: #8b949e } /* Literal.String.Doc */
-.dark .codehilite .s2 { color: #a5c9ea } /* Literal.String.Double */
-.dark .codehilite .se { color: #a5c9ea } /* Literal.String.Escape */
-.dark .codehilite .sh { color: #a5c9ea } /* Literal.String.Herald */
-.dark .codehilite .si { color: #a5c9ea } /* Literal.String.Interpol */
-.dark .codehilite .sx { color: #a5c9ea } /* Literal.String.Other */
-.dark .codehilite .sr { color: #a5c9ea } /* Literal.String.Regex */
-.dark .codehilite .s1 { color: #a5c9ea } /* Literal.String.Single */
-.dark .codehilite .ss { color: #a5c9ea } /* Literal.String.Symbol */
-.dark .codehilite .bp { color: #ff7b72 } /* Name.Builtin.Pseudo */
-.dark .codehilite .fm { color: #d2a8ff } /* Name.Function.Magic */
-.dark .codehilite .vc { color: #79c0ff } /* Name.Variable.Class */
-.dark .codehilite .vg { color: #79c0ff } /* Name.Variable.Global */
-.dark .codehilite .vi { color: #79c0ff } /* Name.Variable.Instance */
-.dark .codehilite .vm { color: #79c0ff } /* Name.Variable.Magic */
-.dark .codehilite .il { color: #79c0ff } /* Literal.Number.Integer.Long */
-
-/* Task lists */
 .markdown-body input[type="checkbox"] {
+    margin-right: 0.5em;
+    vertical-align: middle;
+}
+
+.markdown-body .task-list-item {
+    list-style: none !important;
+    padding-left: 0;
+}
+
+.markdown-body .task-list-item input {
     margin-right: 0.5em;
 }
 
-/* Details/summary */
+
+/* ---------------------------------------------------------------------------
+   Details / Summary
+--------------------------------------------------------------------------- */
+
 .markdown-body details {
     border: 1px solid #d1d9e0;
     border-radius: 6px;
-    padding: 16px;
-    margin-bottom: 16px;
+    padding: 0.5em 1em;
+    margin-bottom: 1em;
 }
 
 .markdown-body summary {
     cursor: pointer;
-    font-weight: 600;
-    padding: 8px 0;
+    font-weight: 600 !important;
+    padding: 0.25em 0;
 }
 
 .dark .markdown-body details {
-    border-color: #30363d;
+    border-color: #3d444d;
 }
 
-/* Keyboard focus styles */
+
+/* ---------------------------------------------------------------------------
+   Snippets de búsqueda — resaltado de términos encontrados
+   Usado por search_utils.py: snippet(fts_documents, 2, '<mark>', '</mark>', …)
+--------------------------------------------------------------------------- */
+
+.markdown-body mark,
+mark {
+    background-color: #fff3b0;
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 2px;
+}
+
+.dark .markdown-body mark,
+.dark mark {
+    background-color: #bb8009;
+    color: #fff;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Focus y accesibilidad
+--------------------------------------------------------------------------- */
+
 .markdown-body a:focus,
 .markdown-body summary:focus {
     outline: 2px solid #0969da;
     outline-offset: 2px;
+    border-radius: 2px;
 }
 
 .dark .markdown-body a:focus,
@@ -502,29 +580,46 @@
     outline-color: #58a6ff;
 }
 
-/* Print styles */
-@media print {
+
+/* ---------------------------------------------------------------------------
+   Responsivo
+--------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
     .markdown-body {
-        background: white;
-        color: black;
-        border: none;
-        padding: 0;
-        margin: 0;
+        font-size: 15px;
+    }
+
+    .markdown-body h1 { font-size: 1.5em !important; }
+    .markdown-body h2 { font-size: 1.25em !important; }
+    .markdown-body h3 { font-size: 1.1em !important; }
+
+    .markdown-body .codehilite,
+    .markdown-body pre {
+        font-size: 80%;
     }
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
+
+/* ---------------------------------------------------------------------------
+   Print
+--------------------------------------------------------------------------- */
+
+@media print {
     .markdown-body {
-        padding: 16px;
-        font-size: 14px;
+        color: #000;
+        font-size: 12pt;
     }
 
-    .markdown-body h1 {
-        font-size: 1.5em;
+    .markdown-body .codehilite,
+    .markdown-body pre {
+        border: 1px solid #ccc;
+        white-space: pre-wrap;   /* en print sí queremos wrap para no cortar */
     }
 
-    .markdown-body h2 {
-        font-size: 1.25em;
+    .markdown-body a::after {
+        content: " (" attr(href) ")";
+        font-size: 0.8em;
+        color: #666;
     }
 }

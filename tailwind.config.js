@@ -1,24 +1,29 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: 'media', // Usa 'media' para detectar automáticamente el tema del sistema
+  // FIX: cambiado de 'media' a 'class'.
+  // Con 'media' Tailwind aplicaba dark: via @media (prefers-color-scheme: dark),
+  // pero markdown.css usa selectores .dark .markdown-body que requieren la clase
+  // en <html>. Con 'class' ambos sistemas son consistentes: theme-toggle.js
+  // añade/quita la clase 'dark' en <html> y todo funciona coordinado.
+  darkMode: 'class',
   content: [
-    './templates/**/*.html', // Asegúrate de incluir tus plantillas HTML
-    './static/js/**/*.js',   // Incluye tus scripts JS si usas clases dinámicas
+    './templates/**/*.html',
+    './static/js/**/*.js',
   ],
   theme: {
     extend: {
       colors: {
         primary: {
-          light: '#007bff', // Azul claro
-          dark: '#0056b3',  // Azul oscuro
+          light: '#007bff',
+          dark: '#0056b3',
         },
         background: {
-          light: '#ffffff', // Fondo claro
-          dark: '#1a202c',  // Fondo oscuro
+          light: '#ffffff',
+          dark: '#1a202c',
         },
         text: {
-          light: '#1a202c', // Texto oscuro para fondo claro
-          dark: '#ffffff',  // Texto claro para fondo oscuro
+          light: '#1a202c',
+          dark: '#ffffff',
         },
       },
     },
@@ -26,4 +31,5 @@ module.exports = {
   plugins: [],
 };
 
-//  npx tailwindcss -i ./static/css/main.css -o ./static/css/output.css --watch
+// Recompilar tras este cambio:
+// npx tailwindcss -i ./static/css/main.css -o ./static/css/output.css --watch

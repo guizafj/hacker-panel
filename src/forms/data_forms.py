@@ -37,7 +37,7 @@ class DeleteTermForm(FlaskForm):
 
 
 class ChecklistForm(FlaskForm):
-    objetive = StringField("Objetivo", validators=[DataRequired()])
+    objective = StringField("Objetivo", validators=[DataRequired()])
     methodology = StringField("Metodología", validators=[DataRequired()])
     description = TextAreaField("Descripción")
     date_target = DateTimeLocalField("Fecha Objetivo", format="%Y-%m-%dT%H:%M")
@@ -56,5 +56,5 @@ class ChecklistForm(FlaskForm):
     completed = BooleanField("Completada")
 
 
-class DeleteObjetiveForm(FlaskForm):
+class DeleteObjectiveForm(FlaskForm):
     pass  # Este formulario solo necesita el token CSRF

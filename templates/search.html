@@ -1,86 +1,268 @@
 {% extends "base.html" %}
 
-{% block title %}Resultado de búsqueda{% endblock %}
+{% block title %}Búsqueda: {{ query }}{% endblock %}
 {% block meta_description %}Resultados de búsqueda en Hacker Panel{% endblock %}
 
 {% block content %}
-    <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">Resultados de búsqueda</h1>
 
-    <form action="{{ url_for('data.search') }}" method="GET" class="flex items-center mb-6" role="search" aria-label="Búsqueda en el sitio">
-        <label for="search-page-input" class="sr-only">Buscar</label>
-        <input type="text" id="search-page-input" name="q" placeholder="Buscar..." value="{{ query }}"
-                class="bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-md px-3 py-2 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full max-w-md"
-                required>
-        <button type="submit" class="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            Buscar
-        </button>
-    </form>
+<h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">
+    Resultados de búsqueda
+</h1>
 
-    {% if results %}
-        <h2 class="text-xl font-semibold mt-6 mb-4">Resultados generales:</h2>
-        <ul class="space-y-4" role="list" aria-label="Resultados de búsqueda">
-            {% for result in results %}
-                <li class="bg-white dark:bg-gray-700 shadow-md rounded-lg p-4">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <strong class="text-lg font-semibold text-gray-800 dark:text-gray-200">{{ result.title }}</strong>
-                            <span class="ml-2 px-2 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs rounded-full">{{ result.model_type }}</span>
-                            {% if result.category %}
-                                <span class="ml-2 px-2 py-1 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-300 text-xs rounded-full">{{ result.category }}</span>
+<!-- Formulario de búsqueda -->
+<form action="{{ url_for('data.search') }}" method="GET"
+    class="flex items-center mb-8" role="search" aria-label="Búsqueda en el sitio">
+    <label for="search-page-input" class="sr-only">Buscar</label>
+    <input type="text" id="search-page-input" name="q"
+        placeholder="Buscar..." value="{{ query }}"
+        class="bg-white dark:bg-gray-700 text-gray-800 dark:text-white
+                rounded-md px-3 py-2 border border-gray-300 dark:border-gray-600
+                focus:outline-none focus:ring-2 focus:ring-blue-500 w-full max-w-lg"
+        required>
+    <button type="submit"
+            class="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold
+                py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        Buscar
+    </button>
+</form>
+
+{% if query %}
+
+    {# ------------------------------------------------------------------ #}
+    {# Separar resultados por tipo para renderizado diferenciado           #}
+    {# ------------------------------------------------------------------ #}
+    {% set doc_types    = ['theory', 'writeup', 'script'] %}
+    {% set struct_types = ['glossary', 'checklist'] %}
+
+    {% set doc_results       = results | selectattr('model_type', 'in', doc_types)    | list %}
+    {% set glossary_results  = results | selectattr('model_type', 'equalto', 'glossary')  | list %}
+    {% set checklist_results = results | selectattr('model_type', 'equalto', 'checklist') | list %}
+
+    {# Resumen de totales #}
+    {% set total = results | length %}
+    {% if total > 0 %}
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+            {{ total }} resultado{{ 's' if total != 1 }} para
+            <strong class="text-gray-700 dark:text-gray-300">"{{ query }}"</strong>
+        </p>
+    {% endif %}
+
+    {# ------------------------------------------------------------------ #}
+    {# Sección 1: Documentos (theory / writeup / script)                  #}
+    {# ------------------------------------------------------------------ #}
+    {% if doc_results %}
+        <section aria-labelledby="section-docs" class="mb-10">
+            <h2 id="section-docs"
+                class="text-lg font-semibold text-gray-700 dark:text-gray-300
+                    border-b border-gray-200 dark:border-gray-600 pb-2 mb-4">
+                Documentos
+                <span class="ml-2 text-sm font-normal text-gray-400">({{ doc_results | length }})</span>
+            </h2>
+
+            <ul class="space-y-3" role="list" aria-label="Resultados en documentos">
+            {% for result in doc_results %}
+                <li class="bg-white dark:bg-gray-700 shadow-sm rounded-lg p-4
+                            border border-gray-100 dark:border-gray-600
+                            hover:border-blue-300 dark:hover:border-blue-500 transition-colors">
+                    <div class="flex justify-between items-start gap-4">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <strong class="text-gray-800 dark:text-gray-100 font-semibold">
+                                    {{ result.title }}
+                                </strong>
+
+                                {# Badge de tipo #}
+                                {% if result.model_type == 'theory' %}
+                                    <span class="px-2 py-0.5 bg-purple-100 dark:bg-purple-900
+                                                text-purple-700 dark:text-purple-300
+                                                text-xs rounded-full">Apunte</span>
+                                {% elif result.model_type == 'writeup' %}
+                                    <span class="px-2 py-0.5 bg-green-100 dark:bg-green-900
+                                                text-green-700 dark:text-green-300
+                                                text-xs rounded-full">Write-up</span>
+                                {% elif result.model_type == 'script' %}
+                                    <span class="px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900
+                                                text-yellow-700 dark:text-yellow-300
+                                                text-xs rounded-full">Script</span>
+                                {% endif %}
+
+                                {# Badge de categoría #}
+                                {% if result.category %}
+                                    <span class="px-2 py-0.5 bg-gray-100 dark:bg-gray-600
+                                                text-gray-600 dark:text-gray-300
+                                                text-xs rounded-full">{{ result.category }}</span>
+                                {% endif %}
+                            </div>
+
+                            {# Snippet con términos resaltados (viene con <mark> del FTS5) #}
+                            {% if result.snippet %}
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                                    {{ result.snippet | safe }}
+                                </p>
                             {% endif %}
                         </div>
-                        <a href="
-                            {% if result.model_type == 'script' %}
-                                {{ url_for('data.view_script', script_id=result.object.id) }}
-                            {% elif result.model_type == 'writeup' %}
-                                {{ url_for('data.view_writeup', writeup_id=result.object.id) }}
-                            {% elif result.model_type == 'theory' %}
-                                {{ url_for('data.view_theory', theory_id=result.object.id) }}
-                            {% else %}
-                                #  URL no definida
-                            {% endif %}
-                        " class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+
+                        {# Botón Ver — URL según tipo #}
+                        <a href="{% if result.model_type == 'theory' %}{{ url_for('data.view_theory', theory_id=result.object.id) }}
+                                    {% elif result.model_type == 'writeup' %}{{ url_for('data.view_writeup', writeup_id=result.object.id) }}
+                                    {% elif result.model_type == 'script' %}{{ url_for('data.view_script', script_id=result.object.id) }}
+                                    {% endif %}"
+                            class="shrink-0 inline-flex items-center px-3 py-1.5
+                                    bg-blue-600 hover:bg-blue-700 text-white text-sm
+                                    font-medium rounded-md focus:outline-none
+                                    focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+                                    transition-colors">
                             Ver
                             <span class="sr-only">{{ result.title }}</span>
                         </a>
                     </div>
                 </li>
             {% endfor %}
-        </ul>
-    {% else %}
-        <p class="text-gray-700 dark:text-gray-300">No se encontraron resultados generales para "{{ query }}"</p>
+            </ul>
+        </section>
     {% endif %}
 
-    <!-- Resultados del glosario -->
+
+    {# ------------------------------------------------------------------ #}
+    {# Sección 2: Glosario                                                 #}
+    {# ------------------------------------------------------------------ #}
     {% if glossary_results %}
-        <h2 class="text-xl font-semibold mt-8 mb-4">Resultados en el glosario:</h2>
-        <ul class="space-y-4" role="list" aria-label="Resultados del glosario">
-            {% for term in glossary_results %}
-            <li class="bg-white dark:bg-gray-700 shadow-md rounded-lg p-4">
-                <strong class="text-lg font-semibold text-gray-800 dark:text-gray-200">{{ term.term }}:</strong>
-                <span class="text-lg text-gray-700 dark:text-gray-300">{{ term.translation }}</span><br>
-                <em class="text-gray-600 dark:text-gray-400">{{ term.description }}</em>
-            </li>
+        <section aria-labelledby="section-glossary" class="mb-10">
+            <h2 id="section-glossary"
+                class="text-lg font-semibold text-gray-700 dark:text-gray-300
+                        border-b border-gray-200 dark:border-gray-600 pb-2 mb-4">
+                Glosario
+                <span class="ml-2 text-sm font-normal text-gray-400">({{ glossary_results | length }})</span>
+            </h2>
+
+            <ul class="space-y-3" role="list" aria-label="Resultados en el glosario">
+            {% for result in glossary_results %}
+                <li class="bg-white dark:bg-gray-700 shadow-sm rounded-lg p-4
+                            border border-gray-100 dark:border-gray-600
+                            hover:border-blue-300 dark:hover:border-blue-500 transition-colors">
+                    <div class="flex justify-between items-start gap-4">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <strong class="text-gray-800 dark:text-gray-100 font-semibold">
+                                    {{ result.object.term }}
+                                </strong>
+                                <span class="text-gray-500 dark:text-gray-400 text-sm">
+                                    — {{ result.object.translation }}
+                                </span>
+                                <span class="px-2 py-0.5 bg-blue-100 dark:bg-blue-900
+                                            text-blue-700 dark:text-blue-300
+                                            text-xs rounded-full">Glosario</span>
+                            </div>
+                            {% if result.object.description %}
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    {{ result.object.description }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        <a href="{{ url_for('data.edit_term', term_id=result.object.id) }}"
+                            class="shrink-0 inline-flex items-center px-3 py-1.5
+                                    bg-gray-200 hover:bg-gray-300 dark:bg-gray-600
+                                    dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200
+                                    text-sm font-medium rounded-md focus:outline-none
+                                    focus:ring-2 focus:ring-offset-2 focus:ring-gray-400
+                                    transition-colors">
+                            Editar
+                            <span class="sr-only">{{ result.object.term }}</span>
+                        </a>
+                    </div>
+                </li>
             {% endfor %}
-        </ul>
-    {% else %}
-        <p class="text-gray-700 dark:text-gray-300 mt-8">No se encontraron resultados en el glosario.</p>
+            </ul>
+        </section>
     {% endif %}
 
-    <!-- Resultados del checklist -->
+
+    {# ------------------------------------------------------------------ #}
+    {# Sección 3: Checklist                                                #}
+    {# ------------------------------------------------------------------ #}
     {% if checklist_results %}
-        <h2 class="text-xl font-semibold mt-6">Resultados en el checklist:</h2>
-        <ul class="space-y-4">
-            {% for objetive in checklist_results %}
-            <li class="bg-white shadow-md rounded-lg p-4">
-                <strong class="text-lg font-semibold text-gray-600">{{ objetive.objetive }}:</strong>
-                <span class="text-lg text-gray-600">{{ objetive.methodology }}</span><br>
-                <em class="text-gray-600">{{ objetive.description }}</em>
-            </li>
+        <section aria-labelledby="section-checklist" class="mb-10">
+            <h2 id="section-checklist"
+                class="text-lg font-semibold text-gray-700 dark:text-gray-300
+                        border-b border-gray-200 dark:border-gray-600 pb-2 mb-4">
+                Checklist
+                <span class="ml-2 text-sm font-normal text-gray-400">({{ checklist_results | length }})</span>
+            </h2>
+
+            <ul class="space-y-3" role="list" aria-label="Resultados en el checklist">
+            {% for result in checklist_results %}
+                <li class="bg-white dark:bg-gray-700 shadow-sm rounded-lg p-4
+                            border border-gray-100 dark:border-gray-600
+                            hover:border-blue-300 dark:hover:border-blue-500 transition-colors">
+                    <div class="flex justify-between items-start gap-4">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <strong class="text-gray-800 dark:text-gray-100 font-semibold">
+                                    {{ result.object.objective }}
+                                </strong>
+
+                                {# Badge de estado con color dinámico #}
+                                <span class="px-2 py-0.5 text-xs rounded-full text-white"
+                                        style="background-color: {{ result.object.color }}">
+                                    {{ result.object.status }}
+                                </span>
+
+                                <span class="px-2 py-0.5 bg-orange-100 dark:bg-orange-900
+                                            text-orange-700 dark:text-orange-300
+                                            text-xs rounded-full">Checklist</span>
+                            </div>
+                            {% if result.object.methodology %}
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                                    <span class="font-medium">Metodología:</span>
+                                    {{ result.object.methodology }}
+                                </p>
+                            {% endif %}
+                            {% if result.object.description %}
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    {{ result.object.description }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        <a href="{{ url_for('data.edit_objective', objective_id=result.object.id) }}"
+                            class="shrink-0 inline-flex items-center px-3 py-1.5
+                                bg-gray-200 hover:bg-gray-300 dark:bg-gray-600
+                                dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200
+                                text-sm font-medium rounded-md focus:outline-none
+                                focus:ring-2 focus:ring-offset-2 focus:ring-gray-400
+                                transition-colors">
+                            Editar
+                            <span class="sr-only">{{ result.object.objective }}</span>
+                        </a>
+                    </div>
+                </li>
             {% endfor %}
-        </ul>
-    {% else %}
-        <p>No se encontraron resultados en el checklist.</p>
+            </ul>
+        </section>
     {% endif %}
+
+
+    {# ------------------------------------------------------------------ #}
+    {# Sin resultados en ninguna sección                                   #}
+    {# ------------------------------------------------------------------ #}
+    {% if not results %}
+        <div class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600
+                    rounded-lg p-8 text-center">
+            <p class="text-gray-500 dark:text-gray-400 text-lg">
+                No se encontraron resultados para
+                <strong class="text-gray-700 dark:text-gray-200">"{{ query }}"</strong>
+            </p>
+            <p class="text-gray-400 dark:text-gray-500 text-sm mt-2">
+                Prueba con otros términos o comprueba que el índice está actualizado
+                con <code class="bg-gray-100 dark:bg-gray-600 px-1 rounded">flask rebuild-index</code>.
+            </p>
+        </div>
+    {% endif %}
+
+{% else %}
+    {# Sin query — estado inicial #}
+    <p class="text-gray-500 dark:text-gray-400">
+        Introduce un término en la barra de búsqueda para comenzar.
+    </p>
+{% endif %}
 
 {% endblock %}

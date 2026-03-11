@@ -8,20 +8,20 @@
     {% if checklist %}
         <!-- Mostrar términos del glosario -->
         <ul class="space-y-4">
-            {% for objetive in checklist %}
+            {% for objective in checklist %}
             <li class="bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
                 <div>
-                    <strong class="text-lg font-semibold text-gray-600">{{ objetive.objetive }}:</strong>
-                    <span class="text-lg text-gray-600">{{ objetive.methodology }}</span><br>
-                    <em class="text-gray-600">{{ objetive.description }}</em>
-                    <p class="text-gray-600">Fecha Objetivo: {{ objetive.date_target }}</p>
-                    <p class="text-gray-600">Estado: {{ objetive.status }}</p>
+                    <strong class="text-lg font-semibold text-gray-600">{{ objective.objective }}:</strong>
+                    <span class="text-lg text-gray-600">{{ objective.methodology }}</span><br>
+                    <em class="text-gray-600">{{ objective.description }}</em>
+                    <p class="text-gray-600">Fecha Objetivo: {{ objective.date_target }}</p>
+                    <p class="text-gray-600">Estado: {{ objective.status }}</p>
                 </div>
                 <div class="space-x-2">
-                    <a href="{{ url_for('data.edit_objetive', objetive_id=objetive.id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    <a href="{{ url_for('data.edit_objective', objective_id=objective.id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                         Editar
                     </a>
-                    <form action="{{ url_for('data.delete_objetive', objetive_id=objetive.id) }}" method="POST" class="inline">
+                    <form action="{{ url_for('data.delete_objective', objective_id=objective.id) }}" method="POST" class="inline">
                         {{ form.csrf_token }}
                         <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                             Eliminar

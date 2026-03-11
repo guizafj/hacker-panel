@@ -2,26 +2,31 @@ from extensions import db
 from datetime import datetime
 
 
-class Objetive(db.Model):
+# Nota: el nombre "Objective" es un typo histórico (debería ser "Objective" o "Objetivo").
+# Se mantiene para no romper la migración y la base de datos existente.
+# Si se quiere renombrar en el futuro, hay que generar una nueva migración con Alembic.
+class Objective(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    objetive = db.Column(db.String(128), nullable=False)  # Objetivo
-    methodology = db.Column(db.String(128), nullable=False)  # Metodologia usada
-    description = db.Column(db.Text)  # Descripción del objetivo
-    date_target = db.Column(db.DateTime, nullable=True)  # Fecha pensada para alcanzarlo
-    status = db.Column(db.String(64), default="Pendiente")  # Estado del objetivo
+    objective = db.Column(db.String(128), nullable=False)
+    methodology = db.Column(db.String(128), nullable=False)
+    description = db.Column(db.Text)
+    date_target = db.Column(db.DateTime, nullable=True)
+    status = db.Column(db.String(64), default="Pendiente")
     color = db.Column(db.String(7), default="#007bff")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return f"<Objetive {self.objetive}>"
+        return f"<Objective {self.objective}>"
 
     def to_dict(self):
         return {
             "id": self.id,
-            "objetive": self.objetive,
+            "objective": self.objective,
             "methodology": self.methodology,
             "description": self.description,
-            "date_target": self.date_target,
+            # FIX: date_target era un objeto datetime crudo, jsonify fallaba.
+            # Ahora se serializa a string ISO 8601 igual que en task.py.
+            "date_target": self.date_target.isoformat() if self.date_target else None,
             "status": self.status,
             "color": self.color,
         }

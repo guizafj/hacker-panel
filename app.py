@@ -1,4 +1,3 @@
-import asyncio
 from flask import Flask, session
 from flask.cli import with_appcontext
 from flask_migrate import Migrate
@@ -13,30 +12,22 @@ from extensions import db
 from src.routes.general_routes import general_bp
 from src.routes.task_routes import task_bp
 from src.routes.data_routes import data_bp
-from src.utils.scanner import scan_all
 from src.utils.search_utils import initialize_search_index
 
-# Cargar variables de entorno desde .env
 load_dotenv()
 
 app = Flask(__name__)
-
 app.config.from_object(Config)
+
+csrf = CSRFProtect()
 talisman = Talisman()
-csrf = CSRFProtect(app)
 
 
 def initialize_extensions(app):
-    """
-    Inicializa las extensiones de Flask (DB, Mail, Migrate, LoginManager).
-
-    Args:
-        app (Flask): Instancia de la aplicación Flask.
-    """
+    """Inicializa las extensiones de Flask."""
     db.init_app(app)
     Migrate(app, db)
-
-    # Deshabilitar strict_slashes para mayor flexibilidad en rutas
+    csrf.init_app(app)
     app.url_map.strict_slashes = False
 
 
@@ -83,7 +74,6 @@ talisman.init_app(
     force_https=False,
     frame_options="DENY",
 )
-csrf.init_app(app)
 
 
 @app.after_request
@@ -92,36 +82,67 @@ def add_csrf_header(response):
     return response
 
 
-# Comando personalizado para ejectutar el escáner / ejecutar -> flask scan-directories
+# --- Logging (una sola vez) ---
+if not app.logger.handlers:
+    file_handler = logging.FileHandler("errors.log")
+    file_handler.setLevel(logging.ERROR)
+    formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
+    file_handler.setFormatter(formatter)
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.ERROR)
+
+
+# ---------------------------------------------------------------------------
+# Comandos CLI
+# ---------------------------------------------------------------------------
+
 @click.command("scan-directories")
 @with_appcontext
 def scan_directories_command():
-    """Escanea los directorios y registra los cambios en la base de datos"""
-    asyncio.run(scan_all())
-    click.echo("Escaneo de directorios completado")
+    """
+    Escanea los directorios data/ y sincroniza BD + índice FTS5.
+    Solo re-indexa archivos que hayan cambiado (por hash MD5).
+
+    Uso: flask scan-directories
+    """
+    from src.utils.scanner import scan_all
+    scan_all(app)
+    click.echo("Escaneo completado.")
 
 
-# Registrar el comando en la aplicación
+@click.command("rebuild-index")
+@with_appcontext
+def rebuild_index_command():
+    """
+    Reconstruye el índice FTS5 completo desde cero.
+    Usar cuando el índice esté corrupto o tras cambios en el schema FTS.
+
+    Uso: flask rebuild-index
+    """
+    from src.utils.search_utils import populate_fts_index
+    click.echo("Reconstruyendo índice FTS5...")
+    counts = populate_fts_index(app)
+    click.echo(
+        f"Listo — theory: {counts['theory']}, writeup: {counts['writeup']}, "
+        f"script: {counts['script']}, glossary: {counts['glossary']}, "
+        f"checklist: {counts['checklist']}"
+    )
+
+
 app.cli.add_command(scan_directories_command)
+app.cli.add_command(rebuild_index_command)
 
-file_handler = logging.FileHandler("errors.log")
-file_handler.setLevel(logging.ERROR)
-formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
-file_handler.setFormatter(formatter)
 
-logging.getLogger().addHandler(file_handler)
-logging.getLogger().setLevel(logging.ERROR)
+# ---------------------------------------------------------------------------
+# Arranque
+# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    # Asegurarse de que la carpeta instance exista
     if not os.path.exists("instance"):
         os.makedirs("instance")
 
-    # Inicializar el índice de búsqueda
     with app.app_context():
-        asyncio.run(initialize_search_index())
+        # Crear tablas FTS5 si no existen (no re-indexa, solo estructura)
+        initialize_search_index(app)
 
     app.run(debug=True, ssl_context=("cert.pem", "key.pem"))
-
-    # python app.py / -> Entra en modo debug on
-    # Usar flask run / -> se salta el debug y da error con el certificado ssl flask run --debug --cert=cert.pem --key=key.pem
