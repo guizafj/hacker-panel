@@ -43,12 +43,14 @@ from extensions import db
 def find_image_intelligently(base_dir, category, filename):
     allowed_root = os.path.realpath(os.path.join(current_app.root_path, "data"))
 
+    safe_base_dir = os.path.basename(base_dir)
+    safe_category = os.path.basename(category)
     safe_dir_pattern = re.compile(r"^[A-Za-z0-9_-]+$")
     if (
-        os.path.basename(base_dir) != base_dir
-        or os.path.basename(category) != category
-        or not safe_dir_pattern.fullmatch(base_dir)
-        or not safe_dir_pattern.fullmatch(category)
+        safe_base_dir != base_dir
+        or safe_category != category
+        or not safe_dir_pattern.fullmatch(safe_base_dir)
+        or not safe_dir_pattern.fullmatch(safe_category)
     ):
         current_app.logger.warning(
             f"Ruta de imagen fuera de formato esperado: base_dir={base_dir}, category={category}"
@@ -56,7 +58,7 @@ def find_image_intelligently(base_dir, category, filename):
         return None
 
     normalized_img_dir = os.path.realpath(
-        os.path.join(allowed_root, base_dir, category, "img")
+        os.path.join(allowed_root, safe_base_dir, safe_category, "img")
     )
 
     if os.path.commonpath([allowed_root, normalized_img_dir]) != allowed_root:
