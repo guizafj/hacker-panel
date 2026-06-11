@@ -85,7 +85,13 @@ def find_image_intelligently(img_dir, filename):
         current_app.logger.warning(f"Nombre de imagen inválido: {filename}")
         return None
 
-    if os.path.exists(os.path.join(normalized_img_dir, safe_filename)):
+    trusted_img_dir = os.path.realpath(normalized_img_dir)
+    candidate_path = os.path.realpath(os.path.join(trusted_img_dir, safe_filename))
+    if os.path.commonpath([trusted_img_dir, candidate_path]) != trusted_img_dir:
+        current_app.logger.warning(f"Intento de acceso fuera de img/: {filename}")
+        return None
+
+    if os.path.exists(candidate_path):
         return safe_filename
     if not os.path.isdir(normalized_img_dir):
         return None
