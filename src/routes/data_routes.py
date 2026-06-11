@@ -48,24 +48,35 @@ def find_image_intelligently(img_dir, filename):
         current_app.logger.warning(f"Ruta de imagen fuera de data/: {img_dir}")
         return None
 
-    if os.path.exists(os.path.join(normalized_img_dir, filename)):
-        return filename
+    safe_filename = os.path.basename(filename)
+    if (
+        not safe_filename
+        or safe_filename != filename
+        or os.path.isabs(filename)
+        or "/" in filename
+        or "\\" in filename
+    ):
+        current_app.logger.warning(f"Nombre de imagen inválido: {filename}")
+        return None
+
+    if os.path.exists(os.path.join(normalized_img_dir, safe_filename)):
+        return safe_filename
     if not os.path.isdir(normalized_img_dir):
         return None
     for file in os.listdir(normalized_img_dir):
-        if file.lower() == filename.lower():
+        if file.lower() == safe_filename.lower():
             return file
     for file in os.listdir(normalized_img_dir):
-        if filename.lower() in file.lower():
+        if safe_filename.lower() in file.lower():
             return file
-    if "Pasted image" in filename:
-        match = re.search(r"(\d+)", filename)
+    if "Pasted image" in safe_filename:
+        match = re.search(r"(\d+)", safe_filename)
         if match:
             date_part = match.group(1)
             for file in os.listdir(normalized_img_dir):
                 if "Pasted image" in file and date_part in file:
                     return file
-    match = re.search(r"image-?(\d*)", filename.lower())
+    match = re.search(r"image-?(\d*)", safe_filename.lower())
     if match:
         num_part = match.group(1) or ""
         for file in os.listdir(normalized_img_dir):
