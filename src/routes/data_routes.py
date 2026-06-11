@@ -277,9 +277,10 @@ def view_image(base_dir, category, filename):
             return "Ruta inválida", 400
 
         data_root = os.path.realpath(os.path.join(current_app.root_path, "data"))
-        img_dir = os.path.realpath(
-            os.path.join(data_root, normalized_base_dir, normalized_category, "img")
+        relative_img_dir = os.path.join(
+            normalized_base_dir, normalized_category, "img"
         )
+        img_dir = os.path.realpath(os.path.join(data_root, relative_img_dir))
 
         if os.path.commonpath([data_root, img_dir]) != data_root:
             current_app.logger.warning(
@@ -294,7 +295,8 @@ def view_image(base_dir, category, filename):
         )
         if matched:
             current_app.logger.info(f"Imagen encontrada: {matched}")
-            return send_from_directory(img_dir, matched)
+            relative_file_path = os.path.join(relative_img_dir, matched)
+            return send_from_directory(data_root, relative_file_path)
 
         current_app.logger.error(f"Imagen no encontrada: {filename}")
         return "Imagen no encontrada", 404
