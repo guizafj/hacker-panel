@@ -40,8 +40,30 @@ from extensions import db
 # ---------------------------------------------------------------------------
 
 
-def find_image_intelligently(img_dir, filename):
+def find_image_intelligently(base_dir, category, filename):
     allowed_root = os.path.realpath(os.path.join(current_app.root_path, "data"))
+
+    safe_dir_pattern = re.compile(r"^[A-Za-z0-9_-]+$")
+    if (
+        os.path.basename(base_dir) != base_dir
+        or os.path.basename(category) != category
+        or not safe_dir_pattern.fullmatch(base_dir)
+        or not safe_dir_pattern.fullmatch(category)
+    ):
+        current_app.logger.warning(
+            f"Ruta de imagen fuera de formato esperado: base_dir={base_dir}, category={category}"
+        )
+        return None
+
+    normalized_img_dir = os.path.realpath(
+        os.path.join(allowed_root, base_dir, category, "img")
+    )
+
+    if os.path.commonpath([allowed_root, normalized_img_dir]) != allowed_root:
+        current_app.logger.warning(
+            f"Ruta de imagen fuera de data/: base_dir={base_dir}, category={category}"
+        )
+        return None
 
     # filename must be a plain basename (no traversal, no directory separators)
     filename = filename.replace("\\", "/")
@@ -51,27 +73,6 @@ def find_image_intelligently(img_dir, filename):
         or filename in (".", "..")
     ):
         current_app.logger.warning(f"Nombre de imagen inválido: {filename}")
-        return None
-
-    # Rebuild a trusted img directory from validated path components.
-    rel_to_data = os.path.relpath(os.path.realpath(img_dir), allowed_root)
-    parts = rel_to_data.split(os.sep)
-    safe_dir_pattern = re.compile(r"^[A-Za-z0-9_-]+$")
-    if (
-        len(parts) != 3
-        or parts[2] != "img"
-        or not safe_dir_pattern.fullmatch(parts[0])
-        or not safe_dir_pattern.fullmatch(parts[1])
-    ):
-        current_app.logger.warning(f"Ruta de imagen fuera de formato esperado: {img_dir}")
-        return None
-
-    normalized_img_dir = os.path.realpath(
-        os.path.join(allowed_root, parts[0], parts[1], "img")
-    )
-
-    if os.path.commonpath([allowed_root, normalized_img_dir]) != allowed_root:
-        current_app.logger.warning(f"Ruta de imagen fuera de data/: {img_dir}")
         return None
 
     safe_filename = os.path.basename(filename)
@@ -279,7 +280,9 @@ def view_image(base_dir, category, filename):
 
         if os.path.commonpath([data_root, img_dir]) != data_root:
             current_app.logger.warning(
-                f"Ruta de imagen inválida. base_dir={base_dir}, category={category}"
+        matched = find_image_intelligently(
+            normalized_base_dir, normalized_category, filename
+        )
             )
             return "Ruta inválida", 400
 
