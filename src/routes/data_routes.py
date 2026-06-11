@@ -42,7 +42,33 @@ from extensions import db
 
 def find_image_intelligently(img_dir, filename):
     allowed_root = os.path.realpath(os.path.join(current_app.root_path, "data"))
-    normalized_img_dir = os.path.realpath(img_dir)
+
+    # filename must be a plain basename (no traversal, no directory separators)
+    filename = filename.replace("\\", "/")
+    if (
+        os.path.basename(filename) != filename
+        or "/" in filename
+        or filename in (".", "..")
+    ):
+        current_app.logger.warning(f"Nombre de imagen inválido: {filename}")
+        return None
+
+    # Rebuild a trusted img directory from validated path components.
+    rel_to_data = os.path.relpath(os.path.realpath(img_dir), allowed_root)
+    parts = rel_to_data.split(os.sep)
+    safe_dir_pattern = re.compile(r"^[A-Za-z0-9_-]+$")
+    if (
+        len(parts) != 3
+        or parts[2] != "img"
+        or not safe_dir_pattern.fullmatch(parts[0])
+        or not safe_dir_pattern.fullmatch(parts[1])
+    ):
+        current_app.logger.warning(f"Ruta de imagen fuera de formato esperado: {img_dir}")
+        return None
+
+    normalized_img_dir = os.path.realpath(
+        os.path.join(allowed_root, parts[0], parts[1], "img")
+    )
 
     if os.path.commonpath([allowed_root, normalized_img_dir]) != allowed_root:
         current_app.logger.warning(f"Ruta de imagen fuera de data/: {img_dir}")
