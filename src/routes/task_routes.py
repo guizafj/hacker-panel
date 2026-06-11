@@ -236,17 +236,23 @@ def update_task(task_id):
         if "start" in data:
             try:
                 task.start_date = isoparse(data["start"])
-            except Exception as e:
+            except Exception:
+                current_app.logger.warning(
+                    f"Invalid start date received for task {task_id}", exc_info=True
+                )
                 return jsonify(
-                    {"status": "error", "message": f"Invalid start date: {str(e)}"}
+                    {"status": "error", "message": "Invalid start date format"}
                 ), 400
 
         if "end" in data:
             try:
                 task.end_date = isoparse(data["end"]) if data["end"] else None
-            except Exception as e:
+            except Exception:
+                current_app.logger.warning(
+                    f"Invalid end date received for task {task_id}", exc_info=True
+                )
                 return jsonify(
-                    {"status": "error", "message": f"Invalid end date: {str(e)}"}
+                    {"status": "error", "message": "Invalid end date format"}
                 ), 400
 
         db.session.commit()
