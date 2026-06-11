@@ -41,27 +41,34 @@ from extensions import db
 
 
 def find_image_intelligently(img_dir, filename):
-    if os.path.exists(os.path.join(img_dir, filename)):
-        return filename
-    if not os.path.isdir(img_dir):
+    allowed_root = os.path.realpath(os.path.join(current_app.root_path, "data"))
+    normalized_img_dir = os.path.realpath(img_dir)
+
+    if os.path.commonpath([allowed_root, normalized_img_dir]) != allowed_root:
+        current_app.logger.warning(f"Ruta de imagen fuera de data/: {img_dir}")
         return None
-    for file in os.listdir(img_dir):
+
+    if os.path.exists(os.path.join(normalized_img_dir, filename)):
+        return filename
+    if not os.path.isdir(normalized_img_dir):
+        return None
+    for file in os.listdir(normalized_img_dir):
         if file.lower() == filename.lower():
             return file
-    for file in os.listdir(img_dir):
+    for file in os.listdir(normalized_img_dir):
         if filename.lower() in file.lower():
             return file
     if "Pasted image" in filename:
         match = re.search(r"(\d+)", filename)
         if match:
             date_part = match.group(1)
-            for file in os.listdir(img_dir):
+            for file in os.listdir(normalized_img_dir):
                 if "Pasted image" in file and date_part in file:
                     return file
     match = re.search(r"image-?(\d*)", filename.lower())
     if match:
         num_part = match.group(1) or ""
-        for file in os.listdir(img_dir):
+        for file in os.listdir(normalized_img_dir):
             if file.lower().startswith(f"image-{num_part}") and file.lower().endswith(
                 ".png"
             ):
