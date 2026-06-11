@@ -13,7 +13,7 @@ repos:
 
   # 2. Hooks básicos de pre-commit
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
         name: "✂️  Eliminar espacios en blanco finales"
@@ -80,27 +80,27 @@ repos:
         files: requirements.*\.txt$
         pass_filenames: false
 
-  #   # 6. Documentación - Validar docstrings (configuración relajada)
-  # - repo: https://github.com/pycqa/pydocstyle
-  #   rev: 6.3.0
-  #   hooks:
-  #     - id: pydocstyle
-  #       name: "📚 Validar docstrings"
-  #       args: [--convention=google, --add-ignore=D100,D101,D102,D103,D104,D105,D106,D107]
-  #       exclude: |
-  #         (?x)^(
-  #           .*/migrations/.*\.py|
-  #           .*/tests/.*\.py|
-  #           .*/test_.*\.py|
-  #           manage\.py|
-  #           .*/settings\.py|
-  #           .*/urls\.py|
-  #           .*/__init__\.py|
-  #           .*/forms\.py|
-  #           .*/models\.py|
-  #           .*/admin\.py|
-  #           .*/views\.py
-  #         )$
+    # 6. Documentación - Validar docstrings (configuración relajada)
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        name: "📚 Validar docstrings"
+        args: [--convention=google, --add-ignore=D100,D101,D102,D103,D104,D105,D106,D107]
+        exclude: |
+          (?x)^(
+            .*/migrations/.*\.py|
+            .*/tests/.*\.py|
+            .*/test_.*\.py|
+            manage\.py|
+            .*/settings\.py|
+            .*/urls\.py|
+            .*/__init__\.py|
+            .*/forms\.py|
+            .*/models\.py|
+            .*/admin\.py|
+            .*/views\.py
+          )$
 
   # 7. Auditoría de dependencias - Verificar vulnerabilidades
   - repo: https://github.com/pypa/pip-audit
@@ -108,5 +108,5 @@ repos:
     hooks:
       - id: pip-audit
         entry: .venv/bin/pip-audit
-        args: ['--desc']
-        additional_dependencies: ['pip>=25.3']
+        args: ['--desc', '--skip-editable']
+        language: system
