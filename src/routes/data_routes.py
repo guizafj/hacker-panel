@@ -207,9 +207,17 @@ def _build_markdown(obj):
 def view_image(base_dir, category, filename):
     try:
         filename = filename.replace("%20", " ")
+        data_root = os.path.abspath(os.path.join(current_app.root_path, "data"))
         img_dir = os.path.abspath(
-            os.path.join(current_app.root_path, "data", base_dir, category, "img")
+            os.path.join(data_root, base_dir, category, "img")
         )
+
+        if os.path.commonpath([data_root, img_dir]) != data_root:
+            current_app.logger.warning(
+                f"Ruta de imagen inválida. base_dir={base_dir}, category={category}"
+            )
+            return "Ruta inválida", 400
+
         current_app.logger.info(f"Buscando imagen en: {img_dir}/{filename}")
 
         matched = find_image_intelligently(img_dir, filename)
@@ -219,6 +227,8 @@ def view_image(base_dir, category, filename):
 
         for root, dirs, files in os.walk(img_dir):
             if root == img_dir:
+                continue
+            if os.path.commonpath([img_dir, os.path.abspath(root)]) != img_dir:
                 continue
             for file in files:
                 if file.lower() == filename.lower() or filename.lower() in file.lower():
