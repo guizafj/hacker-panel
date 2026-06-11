@@ -207,9 +207,24 @@ def _build_markdown(obj):
 def view_image(base_dir, category, filename):
     try:
         filename = filename.replace("%20", " ")
+        safe_dir_pattern = re.compile(r"^[A-Za-z0-9_-]+$")
+
+        normalized_base_dir = os.path.basename(base_dir)
+        normalized_category = os.path.basename(category)
+        if (
+            normalized_base_dir != base_dir
+            or normalized_category != category
+            or not safe_dir_pattern.fullmatch(normalized_base_dir)
+            or not safe_dir_pattern.fullmatch(normalized_category)
+        ):
+            current_app.logger.warning(
+                f"Ruta de imagen inválida. base_dir={base_dir}, category={category}"
+            )
+            return "Ruta inválida", 400
+
         data_root = os.path.abspath(os.path.join(current_app.root_path, "data"))
         img_dir = os.path.abspath(
-            os.path.join(data_root, base_dir, category, "img")
+            os.path.join(data_root, normalized_base_dir, normalized_category, "img")
         )
 
         if os.path.commonpath([data_root, img_dir]) != data_root:
