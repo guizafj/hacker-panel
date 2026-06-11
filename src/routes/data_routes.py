@@ -40,28 +40,82 @@ from extensions import db
 # ---------------------------------------------------------------------------
 
 
-def find_image_intelligently(img_dir, filename):
-    if os.path.exists(os.path.join(img_dir, filename)):
-        return filename
-    if not os.path.isdir(img_dir):
+def find_image_intelligently(base_dir, category, filename):
+    allowed_root = os.path.realpath(os.path.join(current_app.root_path, "data"))
+
+    safe_base_dir = os.path.basename(base_dir)
+    safe_category = os.path.basename(category)
+    safe_dir_pattern = re.compile(r"^[A-Za-z0-9_-]+$")
+    if (
+        safe_base_dir != base_dir
+        or safe_category != category
+        or not safe_dir_pattern.fullmatch(safe_base_dir)
+        or not safe_dir_pattern.fullmatch(safe_category)
+    ):
+        current_app.logger.warning(
+            f"Ruta de imagen fuera de formato esperado: base_dir={base_dir}, category={category}"
+        )
         return None
-    for file in os.listdir(img_dir):
-        if file.lower() == filename.lower():
+
+    normalized_img_dir = os.path.realpath(
+        os.path.join(allowed_root, safe_base_dir, safe_category, "img")
+    )
+
+    if os.path.commonpath([allowed_root, normalized_img_dir]) != allowed_root:
+        current_app.logger.warning(
+            f"Ruta de imagen fuera de data/: base_dir={base_dir}, category={category}"
+        )
+        return None
+
+    # filename must be a plain basename (no traversal, no directory separators)
+    filename = filename.replace("\\", "/")
+    if (
+        os.path.basename(filename) != filename
+        or "/" in filename
+        or filename in (".", "..")
+    ):
+        current_app.logger.warning(f"Nombre de imagen inválido: {filename}")
+        return None
+
+    safe_filename = os.path.basename(filename)
+    if (
+        not safe_filename
+        or safe_filename != filename
+        or os.path.isabs(filename)
+        or "/" in filename
+        or "\\" in filename
+    ):
+        current_app.logger.warning(f"Nombre de imagen inválido: {filename}")
+        return None
+
+    trusted_img_dir = os.path.realpath(normalized_img_dir)
+    candidate_path = os.path.abspath(os.path.join(trusted_img_dir, safe_filename))
+    trusted_prefix = trusted_img_dir if trusted_img_dir.endswith(os.sep) else trusted_img_dir + os.sep
+    if candidate_path != trusted_img_dir and not candidate_path.startswith(trusted_prefix):
+        current_app.logger.warning(f"Intento de acceso fuera de img/: {filename}")
+        return None
+
+    if os.path.isfile(candidate_path):
+        return safe_filename
+    if not os.path.isdir(trusted_img_dir):
+        return None
+    for file in os.listdir(trusted_img_dir):
+        if file.lower() == safe_filename.lower():
             return file
-    for file in os.listdir(img_dir):
-        if filename.lower() in file.lower():
+    for file in os.listdir(trusted_img_dir):
+        if safe_filename.lower() in file.lower():
             return file
-    if "Pasted image" in filename:
-        match = re.search(r"(\d+)", filename)
+    if "Pasted image" in safe_filename:
+        match = re.search(r"(\d+)", safe_filename)
         if match:
             date_part = match.group(1)
-            for file in os.listdir(img_dir):
+            for file in os.listdir(trusted_img_dir):
                 if "Pasted image" in file and date_part in file:
                     return file
-    match = re.search(r"image-?(\d*)", filename.lower())
+    match = re.search(r"image-?(\d*)", safe_filename.lower())
     if match:
         num_part = match.group(1) or ""
-        for file in os.listdir(img_dir):
+        for file in os.listdir(trusted_img_dir):
             if file.lower().startswith(f"image-{num_part}") and file.lower().endswith(
                 ".png"
             ):
@@ -222,32 +276,25 @@ def view_image(base_dir, category, filename):
             )
             return "Ruta inválida", 400
 
-        data_root = os.path.abspath(os.path.join(current_app.root_path, "data"))
-        img_dir = os.path.abspath(
+        data_root = os.path.realpath(os.path.join(current_app.root_path, "data"))
+        img_dir = os.path.realpath(
             os.path.join(data_root, normalized_base_dir, normalized_category, "img")
         )
 
         if os.path.commonpath([data_root, img_dir]) != data_root:
             current_app.logger.warning(
-                f"Ruta de imagen inválida. base_dir={base_dir}, category={category}"
+                f"Ruta de imagen fuera de data/: base_dir={base_dir}, category={category}"
             )
             return "Ruta inválida", 400
 
         current_app.logger.info(f"Buscando imagen en: {img_dir}/{filename}")
 
-        matched = find_image_intelligently(img_dir, filename)
+        matched = find_image_intelligently(
+            normalized_base_dir, normalized_category, filename
+        )
         if matched:
             current_app.logger.info(f"Imagen encontrada: {matched}")
             return send_from_directory(img_dir, matched)
-
-        for root, dirs, files in os.walk(img_dir):
-            if root == img_dir:
-                continue
-            if os.path.commonpath([img_dir, os.path.abspath(root)]) != img_dir:
-                continue
-            for file in files:
-                if file.lower() == filename.lower() or filename.lower() in file.lower():
-                    return send_from_directory(root, file)
 
         current_app.logger.error(f"Imagen no encontrada: {filename}")
         return "Imagen no encontrada", 404
