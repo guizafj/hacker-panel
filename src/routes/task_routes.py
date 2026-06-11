@@ -267,7 +267,15 @@ def update_task(task_id):
         current_app.logger.error(
             f"Error updating task {task_id}: {str(e)}", exc_info=True
         )
-        return jsonify({"status": "error", "message": str(e)}), 400
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "message": "An internal error occurred while updating the task",
+                }
+            ),
+            500,
+        )
 
 
 @task_bp.route("/toggle/<int:task_id>", methods=["POST"])
