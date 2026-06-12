@@ -50,6 +50,18 @@ def _get_allowed_subdirs(root_dir):
 
     if os.path.commonpath([data_root, resolved_root]) != data_root:
         return set()
+
+    # Solo permitir data_root o un hijo directo seguro de data_root
+    if resolved_root != data_root:
+        rel_root = os.path.relpath(resolved_root, data_root)
+        root_parts = rel_root.split(os.sep)
+        if (
+            len(root_parts) != 1
+            or root_parts[0] in ("", ".", "..")
+            or not safe_dir_pattern.fullmatch(root_parts[0])
+        ):
+            return set()
+
     if not os.path.isdir(resolved_root):
         return set()
 
