@@ -43,11 +43,17 @@ from extensions import db
 
 def _get_allowed_subdirs(root_dir):
     safe_dir_pattern = re.compile(r"^[A-Za-z0-9_-]+$")
-    if not os.path.isdir(root_dir):
+    data_root = os.path.realpath(os.path.join(current_app.root_path, "data"))
+    normalized_root_dir = os.path.realpath(root_dir)
+
+    if os.path.commonpath([data_root, normalized_root_dir]) != data_root:
+        return set()
+
+    if not os.path.isdir(normalized_root_dir):
         return set()
     allowed = set()
-    for entry in os.listdir(root_dir):
-        full_path = os.path.join(root_dir, entry)
+    for entry in os.listdir(normalized_root_dir):
+        full_path = os.path.join(normalized_root_dir, entry)
         if os.path.isdir(full_path) and safe_dir_pattern.fullmatch(entry):
             allowed.add(entry)
     return allowed
