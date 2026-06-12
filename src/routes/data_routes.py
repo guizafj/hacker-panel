@@ -31,6 +31,7 @@ import re
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
+from werkzeug.utils import secure_filename
 
 from extensions import db
 
@@ -77,21 +78,14 @@ def find_image_intelligently(base_dir, category, filename):
         current_app.logger.warning(f"Nombre de imagen inválido: {filename}")
         return None
 
-    safe_filename = os.path.basename(filename)
-    if (
-        not safe_filename
-        or safe_filename != filename
-        or os.path.isabs(filename)
-        or "/" in filename
-        or "\\" in filename
-    ):
+    safe_filename = secure_filename(filename)
+    if not safe_filename or safe_filename != filename or os.path.isabs(filename):
         current_app.logger.warning(f"Nombre de imagen inválido: {filename}")
         return None
 
     trusted_img_dir = os.path.realpath(normalized_img_dir)
-    candidate_path = os.path.abspath(os.path.join(trusted_img_dir, safe_filename))
-    trusted_prefix = trusted_img_dir if trusted_img_dir.endswith(os.sep) else trusted_img_dir + os.sep
-    if candidate_path != trusted_img_dir and not candidate_path.startswith(trusted_prefix):
+    candidate_path = os.path.realpath(os.path.join(trusted_img_dir, safe_filename))
+    if os.path.commonpath([trusted_img_dir, candidate_path]) != trusted_img_dir:
         current_app.logger.warning(f"Intento de acceso fuera de img/: {filename}")
         return None
 
