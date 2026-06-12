@@ -46,24 +46,19 @@ def _get_allowed_subdirs(root_dir):
 
     data_root = os.path.realpath(os.path.join(current_app.root_path, "data"))
     resolved_root = os.path.realpath(root_dir)
+
     try:
         if os.path.commonpath([data_root, resolved_root]) != data_root:
             return set()
     except ValueError:
-    normalized_root_dir = os.path.realpath(root_dir)
+        return set()
 
     if not os.path.isdir(resolved_root):
         return set()
 
-
+    allowed = set()
     for entry in os.listdir(resolved_root):
         full_path = os.path.join(resolved_root, entry)
-
-    if not os.path.isdir(normalized_root_dir):
-        return set()
-    allowed = set()
-    for entry in os.listdir(normalized_root_dir):
-        full_path = os.path.join(normalized_root_dir, entry)
         if os.path.isdir(full_path) and safe_dir_pattern.fullmatch(entry):
             allowed.add(entry)
     return allowed
