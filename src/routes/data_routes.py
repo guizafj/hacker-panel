@@ -41,6 +41,18 @@ from extensions import db
 # ---------------------------------------------------------------------------
 
 
+def _get_allowed_subdirs(root_dir):
+    safe_dir_pattern = re.compile(r"^[A-Za-z0-9_-]+$")
+    if not os.path.isdir(root_dir):
+        return set()
+    allowed = set()
+    for entry in os.listdir(root_dir):
+        full_path = os.path.join(root_dir, entry)
+        if os.path.isdir(full_path) and safe_dir_pattern.fullmatch(entry):
+            allowed.add(entry)
+    return allowed
+
+
 def find_image_intelligently(base_dir, category, filename):
     allowed_root = os.path.realpath(os.path.join(current_app.root_path, "data"))
 
@@ -55,6 +67,19 @@ def find_image_intelligently(base_dir, category, filename):
     ):
         current_app.logger.warning(
             f"Ruta de imagen fuera de formato esperado: base_dir={base_dir}, category={category}"
+        )
+        return None
+
+    allowed_base_dirs = _get_allowed_subdirs(allowed_root)
+    if safe_base_dir not in allowed_base_dirs:
+        current_app.logger.warning(f"base_dir no permitido: {base_dir}")
+        return None
+
+    base_dir_path = os.path.join(allowed_root, safe_base_dir)
+    allowed_categories = _get_allowed_subdirs(base_dir_path)
+    if safe_category not in allowed_categories:
+        current_app.logger.warning(
+            f"category no permitido para {safe_base_dir}: {category}"
         )
         return None
 
@@ -271,6 +296,20 @@ def view_image(base_dir, category, filename):
             return "Ruta inválida", 400
 
         data_root = os.path.realpath(os.path.join(current_app.root_path, "data"))
+
+        allowed_base_dirs = _get_allowed_subdirs(data_root)
+        if normalized_base_dir not in allowed_base_dirs:
+            current_app.logger.warning(f"base_dir no permitido: {base_dir}")
+            return "Ruta inválida", 400
+
+        base_dir_path = os.path.join(data_root, normalized_base_dir)
+        allowed_categories = _get_allowed_subdirs(base_dir_path)
+        if normalized_category not in allowed_categories:
+            current_app.logger.warning(
+                f"category no permitido para {normalized_base_dir}: {category}"
+            )
+            return "Ruta inválida", 400
+
         relative_img_dir = os.path.join(
             normalized_base_dir, normalized_category, "img"
         )
