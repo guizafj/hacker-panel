@@ -91,20 +91,26 @@ def find_image_intelligently(base_dir, category, filename):
         return None
 
     allowed_base_dirs = _get_allowed_subdirs(allowed_root)
-    if safe_base_dir not in allowed_base_dirs:
+    canonical_base_dir = next(
+        (d for d in allowed_base_dirs if d.lower() == safe_base_dir.lower()), None
+    )
+    if not canonical_base_dir:
         current_app.logger.warning(f"base_dir no permitido: {base_dir}")
         return None
 
-    base_dir_path = os.path.join(allowed_root, safe_base_dir)
+    base_dir_path = os.path.join(allowed_root, canonical_base_dir)
     allowed_categories = _get_allowed_subdirs(base_dir_path)
-    if safe_category not in allowed_categories:
+    canonical_category = next(
+        (d for d in allowed_categories if d.lower() == safe_category.lower()), None
+    )
+    if not canonical_category:
         current_app.logger.warning(
-            f"category no permitido para {safe_base_dir}: {category}"
+            f"category no permitido para {canonical_base_dir}: {category}"
         )
         return None
 
     normalized_img_dir = os.path.realpath(
-        os.path.join(allowed_root, safe_base_dir, safe_category, "img")
+        os.path.join(allowed_root, canonical_base_dir, canonical_category, "img")
     )
 
     if os.path.commonpath([allowed_root, normalized_img_dir]) != allowed_root:
