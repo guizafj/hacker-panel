@@ -36,7 +36,7 @@ markdown-it-py==3.0.0
 markupsafe==3.0.2
 mdurl==0.1.2
 mistune==3.2.1
-msgpack==1.1.1
+msgpack==1.2.1
 nodeenv==1.10.0
 packageurl-python==0.17.1
 packaging==25.0
