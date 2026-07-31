@@ -4,14 +4,13 @@ from extensions import db
 from src.models.theory import Theory
 from src.models.write_ups import WriteUps
 from src.models.scripts import Scripts
-from src.utils.search_utils import index_file_entry
+from src.utils.search_utils import index_file_entry, initialize_search_index
 
 logger = logging.getLogger(__name__)
 
 
 def scan_directory(app, directory: str, model, file_extension: str) -> dict[str, int]:
-    """
-    Escanea un directorio recursivamente y sincroniza con la base de datos.
+    """Escanea un directorio recursivamente y sincroniza con la base de datos.
 
     Para cada archivo encontrado:
         - Si no existe en BD → lo registra y lo indexa en FTS5.
@@ -57,7 +56,11 @@ def scan_directory(app, directory: str, model, file_extension: str) -> dict[str,
                     category=category,
                 )
                 db.session.add(entry)
-                db.session.flush()  # Obtener el ID antes del commit para poder indexar
+                db.session.flush()  # Obtener el ID antes de poder indexar
+                # Commit: sin esto, la transacción ORM mantiene un lock de
+                # escritura que bloquea la conexión sqlite3 directa de FTS5
+                # ("database is locked") al indexar el archivo nuevo.
+                db.session.commit()
 
                 # Indexar en FTS5
                 index_file_entry(app, entry, model_type)
@@ -88,8 +91,8 @@ def scan_directory(app, directory: str, model, file_extension: str) -> dict[str,
 
 
 def scan_all(app) -> None:
-    """
-    Escanea todos los directorios y sincroniza BD + índice FTS5.
+    """Escanea todos los directorios y sincroniza BD + índice FTS5.
+
     Llamado por `flask scan-directories`.
     """
     base_dir = "data"
@@ -98,6 +101,10 @@ def scan_all(app) -> None:
         "write_ups": (WriteUps, ".md"),
         "scripts": (Scripts, ".py"),
     }
+
+    # Garantizar que las tablas FTS5 existan antes de indexar,
+    # para que scan-directories sea autocontenido en despliegues limpios.
+    initialize_search_index(app)
 
     total = {"added": 0, "updated": 0, "removed": 0}
 

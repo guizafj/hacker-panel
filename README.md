@@ -51,7 +51,7 @@ El objetivo principal es proporcionar una **plataforma centralizada** donde pued
 
 ### 🔍 Buscador Global
 
-- Motor de búsqueda con **Whoosh** que indexa todo el contenido del directorio `/data`.
+- Motor de búsqueda con **SQLite FTS5** que indexa todo el contenido del directorio `/data`.
 - Soporte para búsqueda por palabra, frase o términos múltiples.
 - Diccionario de sinónimos integrado (`src/utils/synonyms.json`).
 - Indexado asíncrono con stemming y análisis de texto.
@@ -95,7 +95,6 @@ hacker-panel/
 │   └── utils/            ← Utilidades (búsqueda, scanner)
 ├── migrations/           ← Migraciones de base de datos
 ├── instance/             ← Base de datos SQLite
-├── whoosh_index/         ← Índices de búsqueda (no versionado)
 └── tests/                ← Tests unitarios
 ```
 
@@ -107,7 +106,7 @@ hacker-panel/
 | Frontend   | Tailwind CSS + HTML + JS   |
 | Calendario | FullCalendar.js            |
 | Markdown   | mistune + Pygments         |
-| Búsqueda   | Whoosh + stemming          |
+| Búsqueda   | SQLite FTS5 + sinónimos + snippets BM25 |
 | Plantillas | Jinja2                     |
 | DB local   | SQLite                     |
 | Seguridad  | Talisman + CSRF Protection |
@@ -147,12 +146,11 @@ Puedes usar **Hacker Panel** con dos flujos de trabajo según tu preferencia:
     ```
 4. Crea los directorios necesarios (si aún no existen):
     ```bash
-    mkdir -p data/writeups data/scripts data/theory whoosh_index instance
+    mkdir -p data/write_ups data/scripts data/theory instance
     ```
-5. Inicializa la base de datos (ejecuta y detén tras la primera ejecución):
+5. Aplica las migraciones para crear las tablas de la base de datos:
     ```bash
-    pdm run flask --app app run
-    # Detén la app con Ctrl+C tras la primera ejecución
+    pdm run flask db upgrade
     ```
 6. Escanea los directorios y crea los índices de búsqueda:
     ```bash
@@ -174,12 +172,11 @@ Puedes usar **Hacker Panel** con dos flujos de trabajo según tu preferencia:
     ```
 2. Crea los directorios necesarios:
     ```bash
-    mkdir -p data/writeups data/scripts data/theory whoosh_index instance
+    mkdir -p data/write_ups data/scripts data/theory instance
     ```
-3. Inicializa la base de datos (ejecuta y detén tras la primera ejecución):
+3. Aplica las migraciones para crear las tablas de la base de datos:
     ```bash
-    flask --app app run
-    # Detén la app con Ctrl+C tras la primera ejecución
+    flask db upgrade
     ```
 4. Escanea los directorios y crea los índices de búsqueda:
     ```bash

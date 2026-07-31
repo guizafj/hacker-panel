@@ -16,6 +16,10 @@ class GlossaryForm(FlaskForm):
     translation = StringField("Traducción", validators=[DataRequired()])
     description = TextAreaField("Descripción")
 
+    def __init__(self, *args, term_id=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.term_id = term_id
+
     def validate_term(self, field):
         """
         Valida que el termino no exista en la base de datos y que no este vacio
@@ -27,7 +31,7 @@ class GlossaryForm(FlaskForm):
             ValidationError: Si el term es invalido  o ya existe
         """
         try:
-            Term.validar_term(field.data, term_id=None)
+            Term.validar_term(field.data, term_id=self.term_id)
         except ValueError as e:
             raise ValidationError(str(e))
 

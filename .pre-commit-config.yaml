@@ -48,10 +48,10 @@ repos:
         args: ['--baseline', '.secrets.baseline']
         exclude: |
           (?x)^(
-            .*\.env\.example|
-            .*\.env\.dev\.example|
-            .*/migrations/.*\.py|
-            .*test.*\.py|
+            .*\.env\.example$|
+            .*\.env\.dev\.example$|
+            migrations/.*\.py|
+            tests/.*\.py|
             .*\.secrets\.baseline
           )$
 
@@ -65,9 +65,8 @@ repos:
         additional_dependencies: ['bandit[toml]']
         exclude: |
           (?x)^(
-            .*/migrations/.*\.py|
-            .*/tests/.*\.py|
-            .*/test_.*\.py
+            migrations/.*\.py|
+            tests/.*\.py
           )$
 
   # 5. Validación de dependencias (opcional)
@@ -80,6 +79,14 @@ repos:
         files: requirements.*\.txt$
         pass_filenames: false
 
+      # 5b. Tests - Ejecutar la suite de pytest
+      - id: pytest
+        name: "🧪 Ejecutar suite de tests"
+        entry: .venv/bin/python -m pytest
+        language: system
+        types: [python]
+        pass_filenames: false
+
     # 6. Documentación - Validar docstrings (configuración relajada)
   - repo: https://github.com/pycqa/pydocstyle
     rev: 6.3.0
@@ -89,10 +96,14 @@ repos:
         args: [--convention=google, --add-ignore=D100,D101,D102,D103,D104,D105,D106,D107]
         exclude: |
           (?x)^(
-            .*/migrations/.*\.py|
-            .*/tests/.*\.py|
-            .*/test_.*\.py|
+            migrations/.*\.py|
+            tests/.*\.py|
+            app\.py|
             manage\.py|
+            src/__init__\.py|
+            src/forms/.*\.py|
+            src/models/.*\.py|
+            src/routes/.*\.py|
             .*/settings\.py|
             .*/urls\.py|
             .*/__init__\.py|

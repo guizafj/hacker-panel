@@ -1,5 +1,5 @@
-from datetime import datetime
 from extensions import db
+from src.utils.time_utils import utcnow
 import re
 
 
@@ -8,7 +8,7 @@ class Term(db.Model):
     term = db.Column(db.String(128), nullable=False, index=True)
     translation = db.Column(db.String(128), nullable=False)
     description = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utcnow)
 
     def __repr__(self):
         return f"<Term {self.term}>"

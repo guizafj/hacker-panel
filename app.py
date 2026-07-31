@@ -78,7 +78,7 @@ talisman.init_app(
 
 @app.after_request
 def add_csrf_header(response):
-    response.headers.set("X-CSRFToken", session.get("_csrf_token"))
+    response.headers.set("X-CSRFToken", session.get("csrf_token"))
     return response
 
 
@@ -148,4 +148,14 @@ if __name__ == "__main__":
         # Crear tablas FTS5 si no existen (no re-indexa, solo estructura)
         initialize_search_index(app)
 
-    app.run(debug=True, ssl_context=("cert.pem", "key.pem"))
+    host = os.environ.get("FLASK_HOST", "127.0.0.1")
+    port = int(os.environ.get("FLASK_PORT", 5000))
+    debug = os.environ.get("FLASK_DEBUG", "1").lower() in ("1", "true", "yes", "on")
+
+    # HTTPS opcional: se activa automáticamente si existen cert.pem/key.pem
+    # (o se pueden forzar rutas concretas con SSL_CERT_FILE / SSL_KEY_FILE).
+    cert = os.environ.get("SSL_CERT_FILE", "cert.pem")
+    key = os.environ.get("SSL_KEY_FILE", "key.pem")
+    ssl_context = (cert, key) if os.path.exists(cert) and os.path.exists(key) else None
+
+    app.run(host=host, port=port, debug=debug, ssl_context=ssl_context)

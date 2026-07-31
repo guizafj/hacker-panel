@@ -19,7 +19,7 @@ class TaskForm(FlaskForm):
     end_date = DateTimeLocalField(
         "Fecha de fin", format="%Y-%m-%dT%H:%M", validators=[DataRequired()]
     )
-    type = SelectField(
+    task_type = SelectField(
         "Tipo",
         choices=[
             ("study", "Estudio"),

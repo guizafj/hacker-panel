@@ -31,7 +31,6 @@ import re
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
-from werkzeug.utils import secure_filename
 
 from extensions import db
 
@@ -41,8 +40,20 @@ from extensions import db
 # ---------------------------------------------------------------------------
 
 
+def _is_plain_basename(name):
+    """Valida que name sea un nombre plano (sin rutas ni traversal).
+
+    Permite caracteres Unicode, espacios, etc. Solo bloquea separadores
+    de ruta, rutas absolutas y los casos especiales '.' y '..'.
+    """
+    if not name or name in (".", ".."):
+        return False
+    if os.path.isabs(name):
+        return False
+    return "/" not in name.replace("\\", "/")
+
+
 def _get_allowed_subdirs(root_dir):
-    safe_dir_pattern = re.compile(r"^[A-Za-z0-9_-]+$")
     allowed = set()
 
     data_root = os.path.realpath(os.path.join(current_app.root_path, "data"))
@@ -55,11 +66,7 @@ def _get_allowed_subdirs(root_dir):
     if resolved_root != data_root:
         rel_root = os.path.relpath(resolved_root, data_root)
         root_parts = rel_root.split(os.sep)
-        if (
-            len(root_parts) != 1
-            or root_parts[0] in ("", ".", "..")
-            or not safe_dir_pattern.fullmatch(root_parts[0])
-        ):
+        if len(root_parts) != 1 or not _is_plain_basename(root_parts[0]):
             return set()
 
     if not os.path.isdir(resolved_root):
@@ -67,7 +74,7 @@ def _get_allowed_subdirs(root_dir):
 
     for entry in os.listdir(resolved_root):
         full_path = os.path.join(resolved_root, entry)
-        if os.path.isdir(full_path) and safe_dir_pattern.fullmatch(entry):
+        if os.path.isdir(full_path) and _is_plain_basename(entry):
             allowed.add(entry)
 
     return allowed
@@ -76,15 +83,7 @@ def _get_allowed_subdirs(root_dir):
 def find_image_intelligently(base_dir, category, filename):
     allowed_root = os.path.realpath(os.path.join(current_app.root_path, "data"))
 
-    safe_base_dir = os.path.basename(base_dir)
-    safe_category = os.path.basename(category)
-    safe_dir_pattern = re.compile(r"^[A-Za-z0-9_-]+$")
-    if (
-        safe_base_dir != base_dir
-        or safe_category != category
-        or not safe_dir_pattern.fullmatch(safe_base_dir)
-        or not safe_dir_pattern.fullmatch(safe_category)
-    ):
+    if not _is_plain_basename(base_dir) or not _is_plain_basename(category):
         current_app.logger.warning(
             f"Ruta de imagen fuera de formato esperado: base_dir={base_dir}, category={category}"
         )
@@ -92,7 +91,7 @@ def find_image_intelligently(base_dir, category, filename):
 
     allowed_base_dirs = _get_allowed_subdirs(allowed_root)
     canonical_base_dir = next(
-        (d for d in allowed_base_dirs if d.lower() == safe_base_dir.lower()), None
+        (d for d in allowed_base_dirs if d.lower() == base_dir.lower()), None
     )
     if not canonical_base_dir:
         current_app.logger.warning(f"base_dir no permitido: {base_dir}")
@@ -101,7 +100,7 @@ def find_image_intelligently(base_dir, category, filename):
     base_dir_path = os.path.join(allowed_root, canonical_base_dir)
     allowed_categories = _get_allowed_subdirs(base_dir_path)
     canonical_category = next(
-        (d for d in allowed_categories if d.lower() == safe_category.lower()), None
+        (d for d in allowed_categories if d.lower() == category.lower()), None
     )
     if not canonical_category:
         current_app.logger.warning(
@@ -119,45 +118,36 @@ def find_image_intelligently(base_dir, category, filename):
         )
         return None
 
-    # filename must be a plain basename (no traversal, no directory separators)
+    # filename debe ser un nombre plano (sin traversal, sin separadores)
     filename = filename.replace("\\", "/")
-    if (
-        os.path.basename(filename) != filename
-        or "/" in filename
-        or filename in (".", "..")
-    ):
-        current_app.logger.warning(f"Nombre de imagen inválido: {filename}")
-        return None
-
-    safe_filename = secure_filename(filename)
-    if not safe_filename or safe_filename != filename or os.path.isabs(filename):
+    if not _is_plain_basename(filename):
         current_app.logger.warning(f"Nombre de imagen inválido: {filename}")
         return None
 
     trusted_img_dir = os.path.realpath(normalized_img_dir)
-    candidate_path = os.path.realpath(os.path.join(trusted_img_dir, safe_filename))
+    candidate_path = os.path.realpath(os.path.join(trusted_img_dir, filename))
     if os.path.commonpath([trusted_img_dir, candidate_path]) != trusted_img_dir:
         current_app.logger.warning(f"Intento de acceso fuera de img/: {filename}")
         return None
 
     if os.path.isfile(candidate_path):
-        return safe_filename
+        return filename
     if not os.path.isdir(trusted_img_dir):
         return None
     for file in os.listdir(trusted_img_dir):
-        if file.lower() == safe_filename.lower():
+        if file.lower() == filename.lower():
             return file
     for file in os.listdir(trusted_img_dir):
-        if safe_filename.lower() in file.lower():
+        if filename.lower() in file.lower():
             return file
-    if "Pasted image" in safe_filename:
-        match = re.search(r"(\d+)", safe_filename)
+    if "Pasted image" in filename:
+        match = re.search(r"(\d+)", filename)
         if match:
             date_part = match.group(1)
             for file in os.listdir(trusted_img_dir):
                 if "Pasted image" in file and date_part in file:
                     return file
-    match = re.search(r"image-?(\d*)", safe_filename.lower())
+    match = re.search(r"image-?(\d*)", filename.lower())
     if match:
         num_part = match.group(1) or ""
         for file in os.listdir(trusted_img_dir):
@@ -195,7 +185,7 @@ class MyRenderer(mistune.HTMLRenderer):
             if isinstance(self.obj, Theory):
                 category, base_dir = self.obj.category, "theory"
             elif isinstance(self.obj, WriteUps):
-                category, base_dir = self.obj.category, "writeups"
+                category, base_dir = self.obj.category, "write_ups"
             elif isinstance(self.obj, Scripts):
                 category, base_dir = self.obj.category, "scripts"
             else:
@@ -230,10 +220,7 @@ class MyRenderer(mistune.HTMLRenderer):
             if not filename:
                 return f'<img src="{src}" alt="{alt}" title="{title}" />'
 
-            img_dir = os.path.abspath(
-                os.path.join(current_app.root_path, "data", base_dir, category, "img")
-            )
-            matched = find_image_intelligently(img_dir, filename)
+            matched = find_image_intelligently(base_dir, category, filename)
 
             if matched:
                 image_url = url_for(
@@ -306,15 +293,14 @@ def _build_markdown(obj):
 def view_image(base_dir, category, filename):
     try:
         filename = filename.replace("%20", " ")
-        safe_dir_pattern = re.compile(r"^[A-Za-z0-9_-]+$")
 
         normalized_base_dir = os.path.basename(base_dir)
         normalized_category = os.path.basename(category)
         if (
             normalized_base_dir != base_dir
             or normalized_category != category
-            or not safe_dir_pattern.fullmatch(normalized_base_dir)
-            or not safe_dir_pattern.fullmatch(normalized_category)
+            or not _is_plain_basename(normalized_base_dir)
+            or not _is_plain_basename(normalized_category)
         ):
             current_app.logger.warning(
                 f"Ruta de imagen inválida. base_dir={base_dir}, category={category}"
@@ -336,9 +322,7 @@ def view_image(base_dir, category, filename):
             )
             return "Ruta inválida", 400
 
-        relative_img_dir = os.path.join(
-            normalized_base_dir, normalized_category, "img"
-        )
+        relative_img_dir = os.path.join(normalized_base_dir, normalized_category, "img")
         img_dir = os.path.realpath(os.path.join(data_root, relative_img_dir))
 
         if os.path.commonpath([data_root, img_dir]) != data_root:
@@ -433,7 +417,7 @@ def edit_term(term_id):
         from flask import abort
 
         abort(404)
-    form = GlossaryForm(obj=term)
+    form = GlossaryForm(obj=term, term_id=term.id)
 
     if form.validate_on_submit():
         term.term = form.term.data
@@ -585,7 +569,11 @@ def view_script(script_id):
             "scripts_detail.html", title=script.title, content=content_html
         )
     except FileNotFoundError:
+        current_app.logger.error(f"Archivo no encontrado: {script.file_path}")
         return "Archivo no encontrado", 404
+    except Exception as e:
+        current_app.logger.error(f"Error renderizando script: {e}", exc_info=True)
+        return "Error al procesar el contenido", 500
 
 
 # ---------------------------------------------------------------------------
@@ -615,7 +603,11 @@ def view_writeup(writeup_id):
             "writeups_detail.html", title=writeup.title, content=content_html
         )
     except FileNotFoundError:
+        current_app.logger.error(f"Archivo no encontrado: {writeup.file_path}")
         return "Archivo no encontrado", 404
+    except Exception as e:
+        current_app.logger.error(f"Error renderizando write-up: {e}", exc_info=True)
+        return "Error al procesar el contenido", 500
 
 
 # ---------------------------------------------------------------------------

@@ -1,6 +1,6 @@
-from datetime import datetime
 from dateutil.parser import isoparse
 from extensions import db
+from src.utils.time_utils import utcnow
 
 
 class Task(db.Model):
@@ -9,10 +9,10 @@ class Task(db.Model):
     description = db.Column(db.Text)
     start_date = db.Column(db.DateTime, nullable=True)
     end_date = db.Column(db.DateTime, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utcnow)
     completed = db.Column(db.Boolean, default=False)
     color = db.Column(db.String(7), default="#007bff")
-    type = db.Column(db.String(20))
+    task_type = db.Column(db.String(20))
 
     # Campos para recurrencia
     recurring = db.Column(db.Boolean, default=False)
@@ -33,7 +33,7 @@ class Task(db.Model):
             "start": self.start_date.isoformat() if self.start_date else None,
             "end": self.end_date.isoformat() if self.end_date else None,
             "color": "#28a745" if self.completed else self.color,
-            "type": self.type,
+            "type": self.task_type,
             "completed": self.completed,
             "recurring": self.recurring,
             "daysOfWeek": self.days_of_week.split(",") if self.days_of_week else [],

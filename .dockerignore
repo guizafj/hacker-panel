@@ -1,0 +1,16 @@
+.git/
+.venv/
+__pycache__/
+*.py[cod]
+node_modules/
+.pdm-build/
+.pdm-python
+.ruff_cache/
+instance/
+whoosh_index/
+errors.log
+cert.pem
+key.pem
+.env
+tests/
+migrations/__pycache__/

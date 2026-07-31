@@ -1,5 +1,5 @@
 from extensions import db
-from datetime import datetime
+from src.utils.time_utils import utcnow
 
 
 # Nota: el nombre "Objective" es un typo histórico (debería ser "Objective" o "Objetivo").
@@ -13,7 +13,7 @@ class Objective(db.Model):
     date_target = db.Column(db.DateTime, nullable=True)
     status = db.Column(db.String(64), default="Pendiente")
     color = db.Column(db.String(7), default="#007bff")
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utcnow)
 
     def __repr__(self):
         return f"<Objective {self.objective}>"

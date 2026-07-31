@@ -30,7 +30,7 @@ def add_task():
                 description=form.description.data,
                 start_date=form.start_date.data,
                 end_date=form.end_date.data,
-                type=form.type.data,
+                task_type=form.task_type.data,
                 color=form.color.data,
                 completed=form.completed.data,
                 recurring=form.recurring.data,
@@ -74,7 +74,7 @@ def edit_task(task_id):
         task.description = form.description.data
         task.start_date = form.start_date.data
         task.end_date = form.end_date.data
-        task.type = form.type.data
+        task.task_type = form.task_type.data
         task.color = form.color.data
         task.completed = form.completed.data
         task.recurring = form.recurring.data
@@ -95,24 +95,6 @@ def edit_task(task_id):
         return redirect(url_for("generales.index"))
 
     return render_template("edit_task.html", form=form, task=task)
-
-
-@task_bp.route("/toggle_complete/<int:task_id>", methods=["POST"])
-def toggle_complete(task_id):
-    task = db.session.get(Task, task_id)
-    if task is None:
-        from flask import abort
-
-        abort(404)
-
-    form = TaskForm()
-    if form.validate_on_submit():
-        task.completed = not task.completed
-        db.session.commit()
-        flash("Estado de la tarea actualizado.", "success")
-        return redirect(url_for("generales.index"))
-    flash("Error al actualizar el estado de la tarea. Token CSRF inválido.", "danger")
-    return redirect(url_for("generales.index"))
 
 
 @task_bp.route("/delete/<int:task_id>", methods=["POST"])

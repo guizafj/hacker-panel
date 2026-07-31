@@ -1,5 +1,4 @@
-"""
-search_utils.py — Motor de búsqueda unificado usando SQLite FTS5.
+"""search_utils.py — Motor de búsqueda unificado usando SQLite FTS5.
 
 Reemplaza Whoosh por SQLite FTS5, que:
 - Viene incluido en Python (sin dependencias externas)
@@ -16,8 +15,9 @@ import hashlib
 import json
 import logging
 import sqlite3
-from datetime import datetime
 from pathlib import Path
+
+from src.utils.time_utils import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ def _get_db_path(app) -> str:
 
 
 def _connect(app) -> sqlite3.Connection:
-    conn = sqlite3.connect(_get_db_path(app))
+    conn = sqlite3.connect(_get_db_path(app), timeout=30)
     conn.row_factory = sqlite3.Row
     # WAL mejora la concurrencia entre FTS5 (conexión directa) y SQLAlchemy
     conn.execute("PRAGMA journal_mode=WAL")
@@ -47,8 +47,8 @@ def _connect(app) -> sqlite3.Connection:
 
 
 def create_fts_tables(app) -> None:
-    """
-    Crea las tablas FTS5 si no existen.
+    """Crea las tablas FTS5 si no existen.
+
     Seguro llamarlo en cada arranque (IF NOT EXISTS).
     """
     with _connect(app) as conn:
@@ -105,7 +105,7 @@ def _upsert_document(
             category   = excluded.category,
             indexed_at = excluded.indexed_at
     """,
-        (doc_id, model_type, object_id, category or "", datetime.utcnow().isoformat()),
+        (doc_id, model_type, object_id, category or "", utcnow().isoformat()),
     )
 
 
@@ -119,8 +119,7 @@ def _compute_hash(text: str) -> str:
 
 
 def index_file_entry(app, entry, model_type: str) -> bool:
-    """
-    Indexa un registro de Theory / WriteUps / Scripts si su contenido cambió.
+    """Indexa un registro de Theory / WriteUps / Scripts si su contenido cambió.
 
     Compara el MD5 del archivo en disco con entry.content_hash.
     Solo re-indexa si el hash es diferente (indexación incremental).
@@ -159,15 +158,15 @@ def index_file_entry(app, entry, model_type: str) -> bool:
         conn.commit()
 
     entry.content_hash = current_hash
-    entry.updated_at = datetime.utcnow()
+    entry.updated_at = utcnow()
 
     logger.debug(f"Re-indexado: {doc_id} ({entry.title})")
     return True
 
 
 def index_structured_entry(app, entry, model_type: str) -> None:
-    """
-    Indexa un registro de Glosario o Checklist.
+    """Indexa un registro de Glosario o Checklist.
+
     Siempre re-indexa (son pequeños y se modifican por formulario).
     Llamar después de cada create/update de estos modelos.
     """
@@ -198,8 +197,8 @@ def index_structured_entry(app, entry, model_type: str) -> None:
 
 
 def remove_from_index(app, model_type: str, object_id: int) -> None:
-    """
-    Elimina un documento del índice FTS5.
+    """Elimina un documento del índice FTS5.
+
     Llamar al borrar un registro de la BD para mantener el índice limpio.
     """
     doc_id = f"{model_type}-{object_id}"
@@ -216,8 +215,7 @@ def remove_from_index(app, model_type: str, object_id: int) -> None:
 
 
 def search_fts(app, query: str, limit: int = 20) -> list[dict]:
-    """
-    Búsqueda FTS5 con expansión de sinónimos y snippets resaltados.
+    """Búsqueda FTS5 con expansión de sinónimos y snippets resaltados.
 
     Soporta:
       - Palabra simple:   "router"
@@ -233,7 +231,7 @@ def search_fts(app, query: str, limit: int = 20) -> list[dict]:
 
     # Cargar sinónimos
     try:
-        syn_path = Path("src/utils/synonyms.json")
+        syn_path = Path(__file__).resolve().parent / "synonyms.json"
         sinonimos: dict = json.loads(syn_path.read_text(encoding="utf-8"))
     except (FileNotFoundError, json.JSONDecodeError):
         sinonimos = {}
@@ -289,8 +287,8 @@ def search_fts(app, query: str, limit: int = 20) -> list[dict]:
 
 
 def resolve_search_objects(results: list[dict]) -> list[dict]:
-    """
-    Añade el objeto ORM completo a cada resultado de search_fts().
+    """Añade el objeto ORM completo a cada resultado de search_fts().
+
     Separado para poder testear search_fts() sin contexto de app.
     """
     from extensions import db
@@ -326,8 +324,8 @@ def resolve_search_objects(results: list[dict]) -> list[dict]:
 
 
 def populate_fts_index(app) -> dict[str, int]:
-    """
-    Re-indexa todos los documentos.
+    """Re-indexa todos los documentos.
+
     Útil para el comando `flask rebuild-index` y la primera ejecución.
     Crea las tablas FTS5 si no existen, por lo que es seguro llamarla
     directamente sin haber arrancado la app previamente.
@@ -378,8 +376,8 @@ def populate_fts_index(app) -> dict[str, int]:
 
 
 def initialize_search_index(app) -> None:
-    """
-    Punto de entrada. Llamar una vez al arrancar la app (dentro de app_context).
+    """Punto de entrada. Llamar una vez al arrancar la app (dentro de app_context).
+
     Crea las tablas FTS5 si no existen. No re-indexa contenido.
     """
     create_fts_tables(app)
